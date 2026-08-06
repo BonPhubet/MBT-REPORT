@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รายงานสินค้าผิดพลาด — Microbiotecthailand</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --primary: #1a1a2e;
+    --accent: #e34948;
+    --amber: #eda100;
+    --blue: #2a78d6;
+    --green: #1baf7a;
+    --surface: #f8f8f6;
+    --card: #ffffff;
+    --border: #e8e6e0;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6966;
+    --text-muted: #9b9895;
+    --radius: 10px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+    background: var(--surface);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 2rem 1.5rem;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .header-left {}
+  .brand {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .date-badge {
+    background: var(--primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  /* KPI Row */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .kpi {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1rem 1.125rem;
+    box-shadow: var(--shadow);
+  }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+  .kpi-sub { font-size: 12px; color: var(--text-secondary); }
+  .c-red { color: var(--accent); }
+  .c-amber { color: var(--amber); }
+  .c-blue { color: var(--blue); }
+  .c-green { color: var(--green); }
+
+  /* Alert Banner */
+  .alert {
+    background: #fff8f8;
+    border: 1px solid #f7c1c1;
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .alert-icon { font-size: 18px; line-height: 1.5; flex-shrink: 0; }
+  .alert-title { font-size: 13px; font-weight: 600; color: #a32d2d; margin-bottom: 4px; }
+  .alert-body { font-size: 12px; color: #791f1f; line-height: 1.7; }
+  .alert-body strong { font-weight: 600; }
+
+  /* Charts */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1.125rem 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: .875rem;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .chart-wrap { position: relative; width: 100%; height: 200px; }
+
+  /* Table */
+  .table-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .table-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .table-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th {
+    text-align: left;
+    padding: 9px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafaf8; }
+  .id-cell { font-weight: 600; font-size: 12px; white-space: nowrap; color: var(--text-secondary); }
+  .badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .b-red { background: #fcebeb; color: #a32d2d; }
+  .b-amber { background: #faeeda; color: #854f0b; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 1rem; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid { grid-template-columns: 1fr; }
+    .header { flex-direction: column; gap: 12px; }
+    .date-badge { align-self: flex-start; }
+  }
+
+  @media print {
+    body { background: white; padding: 1rem; }
+    .card, .kpi, .table-card { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <p class="brand">Microbiotecthailand · TikTok Shop</p>
+      <h1 class="title">รายงานสินค้าผิดพลาด</h1>
+      <p class="subtitle">RE260805-18 ถึง RE260805-37 · 20 รายการ</p>
+    </div>
+    <div class="date-badge">5 สิงหาคม 2569</div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <p class="kpi-label">รายการทั้งหมด</p>
+      <p class="kpi-value" style="color:var(--text-primary)">20</p>
+      <p class="kpi-sub">RE260805-18 → 37</p>
+    </div>
+    <div class="kpi">
+      <p class="kpi-label">ส่งไม่ครบ</p>
+      <p class="kpi-value c-red">14</p>
+      <p class="kpi-sub">70% ของทั้งหมด</p>
+    </div>
+    <div class="kpi">
+      <p class="kpi-label">สินค้าผิด</p>
+      <p class="kpi-value c-amber">6</p>
+      <p class="kpi-sub">30% ของทั้งหมด</p>
+    </div>
+    <div class="kpi">
+      <p class="kpi-label">SKU กระทบหลัก</p>
+      <p class="kpi-value c-blue">13</p>
+      <p class="kpi-sub">หัวเชื้อจุลินทรีย์</p>
+    </div>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert">
+    <div class="alert-icon">⚠️</div>
+    <div>
+      <p class="alert-title">สรุปสาเหตุหลัก</p>
+      <p class="alert-body">
+        <strong>ส่งไม่ครบ (14 รายการ)</strong> — เกือบทั้งหมดเป็นหัวเชื้อจุลินทรีย์ที่ลูกค้าสั่งหลายถุงแต่ได้รับแค่ 1 ถุง
+        บ่งชี้ปัญหากระบวนการแพ็คและตรวจนับก่อนส่ง<br>
+        <strong>สินค้าผิด (6 รายการ)</strong> — ส่วนใหญ่สับสนระหว่างสเปรย์ไล่หมาแมวกับแบคโตเซล 3001 300cc
+        บ่งชี้ปัญหาการหยิบสินค้าในคลัง
+      </p>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-grid">
+    <div class="card">
+      <p class="card-title">ประเภทปัญหา</p>
+      <div class="legend">
+        <span><span class="leg-dot" style="background:#e34948"></span>ส่งไม่ครบ 70%</span>
+        <span><span class="leg-dot" style="background:#eda100"></span>สินค้าผิด 30%</span>
+      </div>
+      <div class="chart-wrap"><canvas id="pieChart" role="img" aria-label="ส่งไม่ครบ 14 รายการ สินค้าผิด 6 รายการ">ส่งไม่ครบ 70%, สินค้าผิด 30%</canvas></div>
+    </div>
+    <div class="card">
+      <p class="card-title">สินค้าที่มีปัญหาสูงสุด</p>
+      <div class="chart-wrap" style="height:200px"><canvas id="barChart" role="img" aria-label="สินค้าที่มีปัญหา หัวเชื้อจุลินทรีย์ 13 รายการ">หัวเชื้อจุลินทรีย์ 13 รายการ</canvas></div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-header">
+      <p class="table-title">รายละเอียดทุกรายการ</p>
+      <span class="table-count">20 รายการ</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>เลขที่</th>
+          <th>ลูกค้า</th>
+          <th>ประเภท</th>
+          <th>รายละเอียดปัญหา</th>
+        </tr>
+      </thead>
+      <tbody id="orderTable"></tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    จัดทำโดยทีม Marketing Online · Microbiotecthailand · TikTok Shop · ข้อมูล ณ วันที่ 5 สิงหาคม 2569
+  </div>
+
+</div>
+
+<script>
+const orders = [
+  {id:"RE260805-18",customer:"น้ำน้อย",type:"ส่งไม่ครบ",note:"สั่งสองชั้น ได้ชั้นเดียว"},
+  {id:"RE260805-19",customer:"ฐานวัฒน์ ธนฤทธิ์ภูรินทร์",type:"สินค้าผิด",note:"สั่งสาเรง ได้หัวเชื้อ"},
+  {id:"RE260805-20",customer:"ธนวัฒน์ ขำนิล",type:"สินค้าผิด",note:"สั่งสเปรย์ไล่หมาแมว ส่ง 3001 300cc ไป"},
+  {id:"RE260805-21",customer:"ปานทิพย์ แก้วน้ำเงิน",type:"สินค้าผิด",note:"สั่งสเปรย์ไล่หมาแมว ได้ 3001 300cc"},
+  {id:"RE260805-22",customer:"ภักดีภา",type:"ส่งไม่ครบ",note:"สั่งหัวเชื้อ 3 ถุง ได้แค่ 1"},
+  {id:"RE260805-23",customer:"จีราวิชย์",type:"ส่งไม่ครบ",note:"สั่งไบโอนิค 1000g x2 ได้แค่ 1"},
+  {id:"RE260805-24",customer:"ร้านพลอยพัชชา",type:"ส่งไม่ครบ",note:"G-002 x3 ได้แค่ 1"},
+  {id:"RE260805-25",customer:"คุณ วีระ ดอนพระยา",type:"ส่งไม่ครบ",note:"หัวเชื้อ x2 ได้แค่ 1"},
+  {id:"RE260805-26",customer:"ธานียาอ่อนเจริญ",type:"ส่งไม่ครบ",note:"หัวเชื้อ x3 ได้แค่ 1"},
+  {id:"RE260805-27",customer:"วิภาดา ผ่องลำเจียก",type:"ส่งไม่ครบ",note:"หัวเชื้อ x3 ได้ 1"},
+  {id:"RE260805-28",customer:"นายสโรทชเษฐ์ คุณปลิ้ม",type:"ส่งไม่ครบ",note:"หัวเชื้อ x5 ได้รับ 1 ถุง"},
+  {id:"RE260805-29",customer:"ประดับ",type:"ส่งไม่ครบ",note:"หัวเชื้อ x3 ได้ 1"},
+  {id:"RE260805-30",customer:"คุณวริษิต มงคลศิริภัทรา",type:"สินค้าผิด",note:"สั่งสเปรย์ไล่หมาแมว ได้แบคโตเซล 3001 300cc"},
+  {id:"RE260805-31",customer:"ประสงค์ แก่นภักดี",type:"ส่งไม่ครบ",note:"หัวเชื้อ x3 ได้รับถุงเดียว"},
+  {id:"RE260805-32",customer:"สุทิชา",type:"สินค้าผิด",note:"สั่ง Antibug ได้หัวเชื้อ"},
+  {id:"RE260805-33",customer:"สมโภชน์ ศรีสอาน",type:"ส่งไม่ครบ",note:"หัวเชื้อ x2 ได้ถุงเดียว"},
+  {id:"RE260805-34",customer:"นายอำนาจ พุ่มทรัพย์เจริญ",type:"ส่งไม่ครบ",note:"หัวเชื้อ x2 ได้ 1"},
+  {id:"RE260805-35",customer:"กนกพร ฝั้นดี",type:"ส่งไม่ครบ",note:"หัวเชื้อ x2 ได้แค่ 1"},
+  {id:"RE260805-36",customer:"ธนะศักดิ์",type:"ส่งไม่ครบ",note:"หัวเชื้อ x6 ได้รับแค่ 1 ถุง"},
+  {id:"RE260805-37",customer:"พรทิพย์",type:"สินค้าผิด",note:"สั่งสเปรย์ไล่หมาแมว ได้ 3001 300cc"},
+];
+
+// Render table
+const tbody = document.getElementById('orderTable');
+orders.forEach(o => {
+  const tr = document.createElement('tr');
+  const badge = o.type === 'ส่งไม่ครบ'
+    ? `<span class="badge b-red">${o.type}</span>`
+    : `<span class="badge b-amber">${o.type}</span>`;
+  tr.innerHTML = `
+    <td class="id-cell">${o.id}</td>
+    <td>${o.customer}</td>
+    <td>${badge}</td>
+    <td style="color:#6b6966">${o.note}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// Pie chart
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['ส่งไม่ครบ', 'สินค้าผิด'],
+    datasets: [{
+      data: [14, 6],
+      backgroundColor: ['#e34948', '#eda100'],
+      borderWidth: 3,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => `${c.label}: ${c.raw} รายการ` } }
+    }
+  }
+});
+
+// Bar chart
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ['หัวเชื้อจุลินทรีย์', 'สเปรย์ไล่หมาแมว', 'ไบโอนิค 1000g', 'G-002', 'อื่น ๆ'],
+    datasets: [{
+      data: [13, 4, 1, 1, 1],
+      backgroundColor: ['#e34948', '#eb6834', '#eda100', '#898781', '#b4b2a9'],
+      borderRadius: 4,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => `${c.raw} รายการ` } }
+    },
+    scales: {
+      x: {
+        ticks: { font: { size: 11 }, color: '#9b9895', stepSize: 1 },
+        grid: { color: '#e8e6e0' }
+      },
+      y: {
+        ticks: { font: { size: 11 }, color: '#6b6966' },
+        grid: { display: false }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
