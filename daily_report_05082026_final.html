@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รีพอร์ตรายวัน 5 ส.ค. 2569 — Microbiotecthailand</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;
+  --bg2:#12121a;
+  --bg3:#1a1a26;
+  --border:#2a2a3d;
+  --border2:#3a3a55;
+  --text:#f0f0f8;
+  --text2:#9090b0;
+  --text3:#5a5a78;
+  --accent:#4d9fff;
+  --green:#22d47a;
+  --red:#ff4d4d;
+  --amber:#ffb020;
+  --orange:#ff7a2f;
+  --purple:#a78bfa;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai','Inter',sans-serif;background:var(--bg);color:var(--text);padding:1.5rem 1rem;font-size:14px;min-height:100vh}
+.container{max-width:960px;margin:0 auto}
+
+/* Header */
+.header{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.brand{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.h-title{font-size:18px;font-weight:700;color:var(--text)}
+.date-main{font-size:15px;font-weight:700;color:var(--text);text-align:right}
+.date-sub{font-size:11px;color:var(--text3);margin-top:3px;text-align:right}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(34,212,122,.1);border:1px solid rgba(34,212,122,.25);color:#22d47a;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;margin-top:6px}
+.pulse{width:6px;height:6px;border-radius:50%;background:#22d47a;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Section */
+.sec-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);margin-top:1.5rem}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.125rem}
+.kpi-label{font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.kpi-value{font-size:24px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-prev{font-size:11px;color:var(--text3);margin-bottom:4px}
+.kpi-change{font-size:12px;font-weight:700}
+.up{color:var(--green)}.down{color:var(--red)}.neu{color:var(--text3)}
+
+/* Alert */
+.alert{border-radius:var(--radius);padding:1rem 1.125rem;margin-bottom:1.25rem;display:flex;gap:10px;border:1px solid}
+.alert.warning{background:rgba(255,176,32,.06);border-color:rgba(255,176,32,.25);border-left:3px solid var(--amber)}
+.alert.danger{background:rgba(255,77,77,.06);border-color:rgba(255,77,77,.25);border-left:3px solid var(--red)}
+.alert-icon{font-size:15px;flex-shrink:0;line-height:1.7}
+.alert-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.alert.warning .alert-title{color:var(--amber)}
+.alert.danger .alert-title{color:var(--red)}
+.alert-body{font-size:12px;line-height:1.75;color:var(--text2)}
+.alert-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.alert-list li{padding-left:14px;position:relative}
+.alert-list li::before{content:"›";position:absolute;left:0;font-weight:700;color:var(--red)}
+
+/* Channel bars */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.125rem 1.25rem}
+.ch-list{display:flex;flex-direction:column;gap:12px}
+.ch-item{display:flex;align-items:center;gap:10px}
+.ch-label{font-size:12px;color:var(--text2);width:140px;flex-shrink:0}
+.ch-bar-wrap{flex:1;background:var(--bg3);border-radius:3px;height:6px;overflow:hidden}
+.ch-bar{height:100%;border-radius:3px}
+.ch-val{font-size:12px;font-weight:700;width:80px;text-align:right;flex-shrink:0}
+.ch-pct{font-size:11px;color:var(--text3);width:38px;text-align:right;flex-shrink:0}
+.ch-chg{font-size:11px;font-weight:700;width:55px;text-align:right;flex-shrink:0}
+
+/* Top Products */
+.prod-list{display:flex;flex-direction:column;gap:6px}
+.prod-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border)}
+.rank{font-size:12px;font-weight:700;color:var(--text3);width:20px;flex-shrink:0}
+.r1{color:#f59e0b}.r2{color:#9ca3af}.r3{color:#cd7c3b}
+.prod-name{flex:1;font-size:12.5px;font-weight:500;color:var(--text)}
+.prod-qty{font-size:12px;color:var(--text3);white-space:nowrap;margin-right:4px}
+.prod-gmv{font-size:13px;font-weight:700;white-space:nowrap;color:var(--accent)}
+
+/* Stock Alert */
+.stock-hd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:.875rem}
+.stock-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--text)}
+.risk-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.3px}
+.risk-critical{background:rgba(255,77,77,.12);color:var(--red);border:1px solid rgba(255,77,77,.3)}
+.risk-high{background:rgba(255,176,32,.1);color:var(--amber);border:1px solid rgba(255,176,32,.25)}
+.risk-medium{background:rgba(34,212,122,.1);color:var(--green);border:1px solid rgba(34,212,122,.25)}
+
+/* Stock stats 3-col */
+.stock-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.875rem}
+.sstat{background:var(--bg3);border-radius:8px;border:1px solid var(--border);padding:.875rem 1rem}
+.sstat-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px}
+.sstat-val{font-size:18px;font-weight:700;line-height:1;color:var(--text)}
+.sstat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* Forecast box */
+.forecast-box{background:rgba(77,159,255,.06);border:1px solid rgba(77,159,255,.2);border-radius:8px;padding:.875rem 1rem;margin-bottom:.875rem}
+.forecast-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);margin-bottom:8px}
+.forecast-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.forecast-main{font-size:22px;font-weight:700;color:var(--text)}
+.forecast-range{font-size:12px;color:var(--text3);margin-top:2px}
+.forecast-note{font-size:12px;color:var(--text2);line-height:1.6;flex:1;min-width:200px}
+
+/* Creator table */
+.creator-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem}
+.creator-hd{padding:.65rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:middle;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.ch-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-right:3px}
+.ch-video{background:rgba(77,159,255,.15);color:var(--accent)}
+.ch-live{background:rgba(255,122,47,.15);color:var(--orange)}
+.tik-link{color:var(--accent);text-decoration:none;font-size:12px}
+.tik-link:hover{text-decoration:underline}
+
+.divider{height:1px;background:var(--border);margin:1.5rem 0}
+.footer{text-align:center;font-size:11px;color:var(--text3);padding-top:1rem;border-top:1px solid var(--border);margin-top:1.5rem}
+
+@media(max-width:600px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .stock-stats{grid-template-columns:repeat(2,1fr)}
+  .ch-label{width:90px;font-size:11px}
+  .ch-chg{display:none}
+  th:nth-child(4),td:nth-child(4){display:none}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <p class="brand">Microbiotecthailand · TikTok Shop</p>
+    <p class="h-title">รีพอร์ตยอดขายรายวัน</p>
+  </div>
+  <div>
+    <p class="date-main">5 สิงหาคม 2569</p>
+    <p class="date-sub">เทียบกับ 31 กรกฎาคม 2569</p>
+    <div class="live-badge"><span class="pulse"></span>Shop Analytics</div>
+  </div>
+</div>
+
+<!-- SECTION 1: KPI -->
+<p class="sec-label">ภาพรวมยอดขาย — เปรียบเทียบวันต่อวัน</p>
+<div class="kpi-grid">
+  <div class="kpi">
+    <p class="kpi-label">GMV</p>
+    <p class="kpi-value" style="color:var(--accent)">฿186,877</p>
+    <p class="kpi-prev">เมื่อวาน ฿125,432</p>
+    <p class="kpi-change up">▲ +49.0%</p>
+  </div>
+  <div class="kpi">
+    <p class="kpi-label">ออเดอร์</p>
+    <p class="kpi-value" style="color:var(--text)">963</p>
+    <p class="kpi-prev">เมื่อวาน 661</p>
+    <p class="kpi-change up">▲ +45.7%</p>
+  </div>
+  <div class="kpi">
+    <p class="kpi-label">AOV เฉลี่ย</p>
+    <p class="kpi-value" style="color:var(--purple)">฿188.2</p>
+    <p class="kpi-prev">เมื่อวาน ฿179.7</p>
+    <p class="kpi-change up">▲ +4.7%</p>
+  </div>
+  <div class="kpi">
+    <p class="kpi-label">รอจัดส่ง</p>
+    <p class="kpi-value" style="color:var(--amber)">4</p>
+    <p class="kpi-prev">เมื่อวาน 0</p>
+    <p class="kpi-change neu">ยังไม่เกิน SLA</p>
+  </div>
+</div>
+
+<!-- SECTION 2: ช่องทาง -->
+<p class="sec-label">ช่องทางการขาย — เปรียบเทียบวันต่อวัน</p>
+<div class="card" style="margin-bottom:1.25rem">
+  <div class="ch-list">
+    <div class="ch-item">
+      <span class="ch-label">Video Affiliate</span>
+      <div class="ch-bar-wrap"><div class="ch-bar" style="width:83.5%;background:#4d9fff"></div></div>
+      <span class="ch-val" style="color:var(--accent)">฿156,105</span>
+      <span class="ch-pct">83.5%</span>
+      <span class="ch-chg up">▲ +49.1%</span>
+    </div>
+    <div class="ch-item">
+      <span class="ch-label">การ์ดสินค้า</span>
+      <div class="ch-bar-wrap"><div class="ch-bar" style="width:12.5%;background:#a78bfa"></div></div>
+      <span class="ch-val" style="color:var(--purple)">฿23,347</span>
+      <span class="ch-pct">12.5%</span>
+      <span class="ch-chg up">▲ +27.6%</span>
+    </div>
+    <div class="ch-item">
+      <span class="ch-label">Live Affiliate</span>
+      <div class="ch-bar-wrap"><div class="ch-bar" style="width:3.0%;background:#ff7a2f"></div></div>
+      <span class="ch-val" style="color:var(--orange)">฿5,537</span>
+      <span class="ch-pct">3.0%</span>
+      <span class="ch-chg down">▼ -5.3%</span>
+    </div>
+    <div class="ch-item">
+      <span class="ch-label">Video Seller</span>
+      <div class="ch-bar-wrap"><div class="ch-bar" style="width:1.0%;background:#ffb020"></div></div>
+      <span class="ch-val" style="color:var(--amber)">฿1,888</span>
+      <span class="ch-pct">1.0%</span>
+      <span class="ch-chg neu">—</span>
+    </div>
+    <div class="ch-item">
+      <span class="ch-label">Live Seller</span>
+      <div class="ch-bar-wrap"><div class="ch-bar" style="width:0%;background:#22d47a"></div></div>
+      <span class="ch-val" style="color:var(--text3)">฿0</span>
+      <span class="ch-pct">0%</span>
+      <span class="ch-chg down">▼ -100%</span>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: Top สินค้า -->
+<p class="sec-label">Top สินค้าขายดี (อ้างอิง Shop Analytics)</p>
+<div class="card" style="margin-bottom:1.25rem">
+  <div class="prod-list">
+    <div class="prod-item"><span class="rank r1">#1</span><span class="prod-name">หัวเชื้อจุลินทรีย์ สูตรเข้มข้น</span><span class="prod-qty">394 ชิ้น</span><span class="prod-gmv">฿86,216</span></div>
+    <div class="prod-item"><span class="rank r2">#2</span><span class="prod-name">ไบโอนิค G-001</span><span class="prod-qty">209 ชิ้น</span><span class="prod-gmv">฿22,651</span></div>
+    <div class="prod-item"><span class="rank r3">#3</span><span class="prod-name">แบคโตเซล 3001 1000g</span><span class="prod-qty">48 ชิ้น</span><span class="prod-gmv">฿15,527</span></div>
+    <div class="prod-item"><span class="rank">#4</span><span class="prod-name">ผงไบโอนิค 1000g</span><span class="prod-qty">47 ชิ้น</span><span class="prod-gmv">฿10,910</span></div>
+    <div class="prod-item"><span class="rank">#5</span><span class="prod-name">จุลินทรีย์แก้ส้วมเหม็น 2500g</span><span class="prod-qty">24 ชิ้น</span><span class="prod-gmv">฿9,433</span></div>
+    <div class="prod-item"><span class="rank">#6</span><span class="prod-name">Antibug กำจัดแมลงหวี่</span><span class="prod-qty">42 ชิ้น</span><span class="prod-gmv">฿7,357</span></div>
+    <div class="prod-item"><span class="rank">#7</span><span class="prod-name">สารเร่งปุ๋ยหมัก ไบโอนิค 1</span><span class="prod-qty">42 ชิ้น</span><span class="prod-gmv">฿6,196</span></div>
+    <div class="prod-item"><span class="rank">#8</span><span class="prod-name">แบคโตเซล 3001 300cc</span><span class="prod-qty">28 ชิ้น</span><span class="prod-gmv">฿4,458</span></div>
+  </div>
+</div>
+
+<!-- SECTION 4: STOCK ALERT -->
+<p class="sec-label">⚠ Stock Alert — เฝ้าระวัง & คาดการณ์พรุ่งนี้</p>
+
+<div class="alert danger">
+  <div class="alert-icon">🚨</div>
+  <div>
+    <p class="alert-title">สัญญาณเตือนสต็อก — ต้องเตรียมสินค้าด่วน</p>
+    <p class="alert-body">
+      <ul class="alert-list">
+        <li><strong>หัวเชื้อ สูตรเข้มข้น</strong> — @single_nee ยังคง Active ทั้ง Video + Live คาดต้องเตรียม 294–429 ชิ้นสำหรับพรุ่งนี้</li>
+        <li><strong>ไบโอนิค G-001</strong> — @kasetpingkyo คลิปยังวิ่งอยู่ คาดต้องเตรียม 142–197 ชิ้น</li>
+        <li><strong>แบคโตเซล 3001 1000g</strong> — 2 ช่องปั๊มพร้อมกัน คาดต้องเตรียม 32–47 ชิ้น</li>
+      </ul>
+    </p>
+  </div>
+</div>
+
+<!-- PRODUCT 1 -->
+<div class="stock-hd">
+  <p class="stock-title">🔴 หัวเชื้อจุลินทรีย์ สูตรเข้มข้น</p>
+  <span class="risk-badge risk-critical">⚠ ความเสี่ยงสูงมาก</span>
+</div>
+<div class="stock-stats">
+  <div class="sstat">
+    <p class="sstat-label">ขายวันนี้</p>
+    <p class="sstat-val" style="color:var(--red)">402 ชิ้น</p>
+    <p class="sstat-sub">GMV ฿86,216</p>
+  </div>
+  <div class="sstat">
+    <p class="sstat-label">ช่องทางหลัก</p>
+    <p class="sstat-val" style="color:var(--accent)">Video</p>
+    <p class="sstat-sub">347 ชิ้น (86.3%)</p>
+  </div>
+  <div class="sstat">
+    <p class="sstat-label">ช่องอันดับ 1</p>
+    <p class="sstat-val" style="color:var(--orange);font-size:14px">@single_nee</p>
+    <p class="sstat-sub">271 ชิ้น (67.4%)</p>
+  </div>
+</div>
+<div class="forecast-box">
+  <p class="forecast-title">🔮 คาดการณ์พรุ่งนี้ (6 ส.ค.)</p>
+  <div class="forecast-row">
+    <div>
+      <p class="forecast-main" style="color:var(--accent)">294 – 429 ชิ้น</p>
+      <p class="forecast-range">ต่ำสุด 294 · สูงสุด 429 ชิ้น</p>
+    </div>
+    <p class="forecast-note">@single_nee Live ยังคง Active + คลิปวิดีโอยังวิ่ง คาดยอดใกล้เคียงหรือสูงกว่าวันนี้ ควรเตรียมสต็อกอย่างน้อย <strong style="color:var(--red)">430 ชิ้น</strong> เพื่อความปลอดภัย</p>
+  </div>
+</div>
+<div class="creator-card">
+  <div class="creator-hd">ช่องที่ขายสินค้านี้</div>
+  <table>
+    <thead><tr><th>ช่อง</th><th>ช่องทาง</th><th>จำนวน</th><th>สัดส่วน</th><th>ลิงก์</th></tr></thead>
+    <tbody>
+      <tr><td><strong>@single_nee</strong> 🔥</td><td><span class="ch-badge ch-video">Video</span><span class="ch-badge ch-live">Live</span></td><td><strong>271 ชิ้น</strong></td><td>67.4%</td><td><a class="tik-link" href="https://www.tiktok.com/@single_nee" target="_blank">@single_nee ↗</a></td></tr>
+      <tr><td>@maebandaily</td><td><span class="ch-badge ch-video">Video</span></td><td>15 ชิ้น</td><td>3.7%</td><td><a class="tik-link" href="https://www.tiktok.com/@maebandaily" target="_blank">@maebandaily ↗</a></td></tr>
+      <tr><td>@pattarann22</td><td><span class="ch-badge ch-video">Video</span></td><td>8 ชิ้น</td><td>2.0%</td><td><a class="tik-link" href="https://www.tiktok.com/@pattarann22" target="_blank">@pattarann22 ↗</a></td></tr>
+      <tr><td colspan="5" style="font-size:11px;color:var(--text3);padding:7px 12px">+ อีก 10 ช่อง แต่ละช่อง 1–3 ชิ้น · Product Card: 38 ชิ้น</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- PRODUCT 2 -->
+<div class="stock-hd">
+  <p class="stock-title">🟡 ไบโอนิค G-001</p>
+  <span class="risk-badge risk-high">⚠ ความเสี่ยงสูง</span>
+</div>
+<div class="stock-stats">
+  <div class="sstat">
+    <p class="sstat-label">ขายวันนี้</p>
+    <p class="sstat-val" style="color:var(--amber)">211 ชิ้น</p>
+    <p class="sstat-sub">GMV ฿22,651</p>
+  </div>
+  <div class="sstat">
+    <p class="sstat-label">ช่องทางหลัก</p>
+    <p class="sstat-val" style="color:var(--accent)">Video</p>
+    <p class="sstat-sub">193 ชิ้น (91.5%)</p>
+  </div>
+  <div class="sstat">
+    <p class="sstat-label">ช่องอันดับ 1</p>
+    <p class="sstat-val" style="color:var(--orange);font-size:13px">@kasetpingkyo</p>
+    <p class="sstat-sub">133 ชิ้น (63.0%)</p>
+  </div>
+</div>
+<div class="forecast-box">
+  <p class="forecast-title">🔮 คาดการณ์พรุ่งนี้ (6 ส.ค.)</p>
+  <div class="forecast-row">
+    <div>
+      <p class="forecast-main" style="color:var(--accent)">142 – 197 ชิ้น</p>
+      <p class="forecast-range">ต่ำสุด 142 · สูงสุด 197 ชิ้น</p>
+    </div>
+    <p class="forecast-note">@kasetpingkyo คลิปยังวิ่งอยู่ คาดยอดทรงตัวถึงลดลงเล็กน้อย ควรเตรียมสต็อกอย่างน้อย <strong style="color:var(--amber)">200 ชิ้น</strong> เพื่อความปลอดภัย</p>
+  </div>
+</div>
+<div class="creator-card">
+  <div class="creator-hd">ช่องที่ขายสินค้านี้</div>
+  <table>
+    <thead><tr><th>ช่อง</th><th>ช่องทาง</th><th>จำนวน</th><th>สัดส่วน</th><th>ลิงก์</th></tr></thead>
+    <tbody>
+      <tr><td><strong>@kasetpingkyo</strong> 🔥</td><td><span class="ch-badge ch-video">Video</span></td><td><strong>133 ชิ้น</strong></td><td>63.0%</td><td><a class="tik-link" href="https://www.tiktok.com/@kasetpingkyo" target="_blank">@kasetpingkyo ↗</a></td></tr>
+      <tr><td>@baansuantamgamlang</td><td><span class="ch-badge ch-video">Video</span></td><td>28 ชิ้น</td><td>13.3%</td><td><a class="tik-link" href="https://www.tiktok.com/@baansuantamgamlang" target="_blank">@baansuantamgamlang ↗</a></td></tr>
+      <tr><td>@lalita_690</td><td><span class="ch-badge ch-video">Video</span></td><td>5 ชิ้น</td><td>2.4%</td><td><a class="tik-link" href="https://www.tiktok.com/@lalita_690" target="_blank">@lalita_690 ↗</a></td></tr>
+      <tr><td colspan="5" style="font-size:11px;color:var(--text3);padding:7px 12px">+ อีก 6 ช่อง แต่ละช่อง 1–4 ชิ้น · Product Card: 18 ชิ้น</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- PRODUCT 3 -->
+<div class="stock-hd">
+  <p class="stock-title">🟢 แบคโตเซล 3001 1000g</p>
+  <span class="risk-badge risk-medium">ต้องติดตาม</span>
+</div>
+<div class="stock-stats">
+  <div class="sstat">
+    <p class="sstat-label">ขายวันนี้</p>
+    <p class="sstat-val" style="color:var(--green)">51 ชิ้น</p>
+    <p class="sstat-sub">GMV ฿15,527</p>
+  </div>
+  <div class="sstat">
+    <p class="sstat-label">ช่องทางหลัก</p>
+    <p class="sstat-val" style="color:var(--accent)">Video</p>
+    <p class="sstat-sub">40 ชิ้น (78.4%)</p>
+  </div>
+  <div class="sstat">
+    <p class="sstat-label">ช่องอันดับ 1</p>
+    <p class="sstat-val" style="color:var(--orange);font-size:14px">@yuwarech</p>
+    <p class="sstat-sub">20 ชิ้น (39.2%)</p>
+  </div>
+</div>
+<div class="forecast-box">
+  <p class="forecast-title">🔮 คาดการณ์พรุ่งนี้ (6 ส.ค.)</p>
+  <div class="forecast-row">
+    <div>
+      <p class="forecast-main" style="color:var(--accent)">32 – 47 ชิ้น</p>
+      <p class="forecast-range">ต่ำสุด 32 · สูงสุด 47 ชิ้น</p>
+    </div>
+    <p class="forecast-note">@yakor_01 มี 167K followers คลิปอาจยังวิ่ง ควรเตรียมสต็อกอย่างน้อย <strong style="color:var(--green)">50 ชิ้น</strong> เพื่อความปลอดภัย</p>
+  </div>
+</div>
+<div class="creator-card">
+  <div class="creator-hd">ช่องที่ขายสินค้านี้</div>
+  <table>
+    <thead><tr><th>ช่อง</th><th>ช่องทาง</th><th>จำนวน</th><th>สัดส่วน</th><th>ลิงก์</th></tr></thead>
+    <tbody>
+      <tr><td><strong>@yuwarech</strong></td><td><span class="ch-badge ch-video">Video</span></td><td><strong>20 ชิ้น</strong></td><td>39.2%</td><td><a class="tik-link" href="https://www.tiktok.com/@yuwarech" target="_blank">@yuwarech ↗</a></td></tr>
+      <tr><td><strong>@yakor_01</strong> <span style="font-size:11px;color:var(--text3)">167K</span></td><td><span class="ch-badge ch-video">Video</span></td><td><strong>17 ชิ้น</strong></td><td>33.3%</td><td><a class="tik-link" href="https://www.tiktok.com/@yakor_01" target="_blank">@yakor_01 ↗</a></td></tr>
+      <tr><td>@nuningreviwe8</td><td><span class="ch-badge ch-video">Video</span></td><td>1 ชิ้น</td><td>2.0%</td><td><a class="tik-link" href="https://www.tiktok.com/@nuningreviwe8" target="_blank">@nuningreviwe8 ↗</a></td></tr>
+      <tr><td>@kenveerapon</td><td><span class="ch-badge ch-video">Video</span></td><td>1 ชิ้น</td><td>2.0%</td><td><a class="tik-link" href="https://www.tiktok.com/@kenveerapon" target="_blank">@kenveerapon ↗</a></td></tr>
+      <tr><td colspan="5" style="font-size:11px;color:var(--text3);padding:7px 12px">Product Card: 11 ชิ้น</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="footer">
+  จัดทำโดยทีม Marketing Online · Microbiotecthailand · TikTok Shop<br>
+  ข้อมูล ณ วันที่ 5 สิงหาคม 2569 · อ้างอิง: Shop Analytics + Order Export + Creator List
+</div>
+
+</div>
+</body>
+</html>
