@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ยอดขายรวมทุกแพลตฟอร์ม — Microbiotecthailand</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#060910;--bg2:#0d1117;--bg3:#161b27;--bg4:#1e2435;
+  --border:#1e2d45;--border2:#2a3d5a;
+  --text:#e8eef8;--text2:#7a8fad;--text3:#3a4d66;
+  --accent:#3d8ef0;--green:#0fb86a;--red:#f04458;
+  --amber:#f5a623;--orange:#f07340;--purple:#9b6cf5;
+  --shopee:#ff6b2b;--lazada:#1a6fe8;--tiktok:#888fa8;--bkk:#0fb86a;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai','Inter',sans-serif;background:var(--bg);color:var(--text);padding:1.5rem 1rem;font-size:14px;min-height:100vh}
+.container{max-width:960px;margin:0 auto}
+
+/* Header */
+.header{
+  background:linear-gradient(135deg,#0d1117 0%,#111827 100%);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.25rem 1.5rem;margin-bottom:1.25rem;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  box-shadow:0 0 0 1px rgba(61,142,240,.08),0 4px 24px rgba(0,0,0,.4);
+}
+.brand{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.h-title{font-size:18px;font-weight:700;color:var(--text)}
+.h-right{text-align:right}
+.h-date{font-size:13px;font-weight:600;color:var(--text)}
+.h-sub{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* Filter */
+.filter-bar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3)}
+.fbtn{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.fbtn:hover{border-color:var(--accent);color:var(--accent)}
+.fbtn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.divider-v{width:1px;height:20px;background:var(--border);margin:0 4px}
+
+/* Summary Header */
+.summary-hd{border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.sh-hit{background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--green)}
+.sh-miss{background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--red)}
+.sh-title{font-size:17px;font-weight:700;color:var(--text)}
+.sh-sub{font-size:12px;color:var(--text2);margin-top:3px}
+.badge{padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-hit{background:rgba(15,184,106,.12);color:var(--green);border:1px solid rgba(15,184,106,.25)}
+.badge-miss{background:rgba(240,68,88,.1);color:var(--red);border:1px solid rgba(240,68,88,.22)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{border-radius:var(--radius);padding:1rem 1.125rem}
+.kpi-plain{background:var(--bg2);border:1px solid var(--border)}
+.kpi-target{background:rgba(245,166,35,.06);border:1.5px solid rgba(245,166,35,.3)}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.kpi-target .kpi-lbl{color:var(--amber)}
+.kpi-val{font-size:20px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-target .kpi-val{color:var(--amber)}
+.kpi-chg{font-size:12px;font-weight:600}
+.up{color:var(--green)}.down{color:var(--red)}.neu{color:var(--text3)}
+
+/* Section */
+.sec{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin:1.5rem 0 .875rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+
+/* Chart */
+.chart-wrap{position:relative;width:100%;margin-bottom:1.25rem}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.legend span{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* Platform Cards (Growth) */
+.pf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.25rem}
+.pf-card{background:var(--bg2);border-radius:var(--radius);padding:1rem 1.125rem}
+.pf-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.pf-name{font-size:12px;font-weight:600;color:var(--text)}
+.pf-pct{font-size:12px;font-weight:700}
+.pf-tgt-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.pf-tgt-badge{font-size:10px;font-weight:700;color:var(--amber);background:rgba(245,166,35,.08);border:0.5px solid rgba(245,166,35,.25);padding:2px 7px;border-radius:10px}
+.pf-tgt-val{font-size:13px;font-weight:600;color:var(--amber)}
+.pf-act-row{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.pf-act-lbl{font-size:10px;color:var(--text3)}
+.pf-act-val{font-size:15px;font-weight:700;color:var(--text)}
+.prog-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.prog-bar{height:100%;border-radius:3px}
+.pf-gap{font-size:11px;font-weight:500}
+
+/* Growth cards */
+.gc-main{font-size:28px;font-weight:700;line-height:1;margin-bottom:3px}
+.gc-sub{font-size:11px;color:var(--text2);margin-bottom:10px}
+.gc-bars{display:flex;flex-direction:column;gap:5px}
+.gc-bar-row{display:flex;align-items:center;gap:6px}
+.gc-bar-lbl{font-size:10px;color:var(--text3);width:30px;text-align:right;flex-shrink:0}
+.gc-bar-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;position:relative}
+.gc-bar-pos{height:100%;border-radius:3px;position:absolute;left:50%}
+.gc-bar-neg{height:100%;border-radius:3px;position:absolute;right:50%}
+.gc-bar-val{font-size:11px;font-weight:600;width:42px;text-align:right;flex-shrink:0}
+
+.footer{text-align:center;font-size:11px;color:var(--text3);padding-top:1rem;border-top:1px solid var(--border);margin-top:1.5rem}
+@media(max-width:600px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .pf-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <p class="brand">Microbiotecthailand · ทุกแพลตฟอร์ม</p>
+    <p class="h-title">รายงานยอดขายรวม</p>
+  </div>
+  <div class="h-right">
+    <p class="h-date">เมษายน – กรกฎาคม 2569</p>
+    <p class="h-sub">Shopee · Lazada · TikTok Shop · บุคคล</p>
+  </div>
+</div>
+
+<!-- FILTER -->
+<div class="filter-bar">
+  <span class="filter-lbl">เดือน:</span>
+  <button class="fbtn" onclick="setMo('all',this)">ทั้งหมด</button>
+  <div class="divider-v"></div>
+  <button class="fbtn active" onclick="setMo(0,this)">เมษายน</button>
+  <button class="fbtn" onclick="setMo(1,this)">พฤษภาคม</button>
+  <button class="fbtn" onclick="setMo(2,this)">มิถุนายน</button>
+  <button class="fbtn" onclick="setMo(3,this)">กรกฎาคม</button>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary-hd" id="hdr"></div>
+
+<!-- KPI -->
+<div class="kpi-grid" id="kpiGrid"></div>
+
+<!-- CHART -->
+<p class="sec">ยอดรวมทุกแพลตฟอร์ม vs เป้าหมาย</p>
+<div class="legend">
+  <span><span class="leg-sq" style="background:transparent;border:2px dashed var(--amber)"></span>เป้าหมาย</span>
+  <span><span class="leg-sq" style="background:var(--accent)"></span>ยอดที่ทำได้</span>
+</div>
+<div class="chart-wrap" style="height:230px">
+  <canvas id="mainChart" role="img" aria-label="กราฟยอดรวมทุกแพลตฟอร์มเทียบเป้าหมาย"></canvas>
+</div>
+
+<!-- PLATFORM SECTION -->
+<p class="sec" id="pfSec">อัตราการเติบโต MoM รายแพลตฟอร์ม</p>
+<div class="pf-grid" id="pfGrid"></div>
+
+<div class="footer">
+  Microbiotecthailand · รายงานยอดขายรวมทุกแพลตฟอร์ม · เมษายน–กรกฎาคม 2569
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const MO=['เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม'];
+const MOS=['เม.ย.','พ.ค.','มิ.ย.','ก.ค.'];
+const D={
+  target:[9871864,8449663,9600000,11200000],
+  total: [7578338,8620332,10011536,11302469],
+  shopee:[3565507,5266486,6440747,7018523],
+  lazada:[612904, 818593, 814910, 675413],
+  tiktok:[1714196,2246296,2632031,3197365],
+  bkk:   [267640, 288957, 123848, 411167],
+  tgt_shopee:[5669186,4786621,5500000,6700000],
+  tgt_lazada:[1637392,850767, 900000, 1000000],
+  tgt_tiktok:[2554147,2554147,2700000,2950000],
+  tgt_bkk:   [229380, 258128, 500000, 550000],
+};
+const C={shopee:'#ff6b2b',lazada:'#1a6fe8',tiktok:'#888fa8',bkk:'#0fb86a'};
+const NAMES={shopee:'Shopee',lazada:'Lazada',tiktok:'TikTok Shop',bkk:'บุคคล'};
+
+let mo=0, mainC;
+
+function fmt(n){return Math.round(n).toLocaleString('th-TH');}
+function fmtB(n){return '฿'+fmt(n);}
+function mom(arr,i){return i===0?null:+((arr[i]-arr[i-1])/arr[i-1]*100).toFixed(1);}
+
+function renderHdr(){
+  const idxs=mo==='all'?[0,1,2,3]:[mo];
+  const tot=idxs.reduce((a,i)=>a+D.total[i],0);
+  const tgt=idxs.reduce((a,i)=>a+D.target[i],0);
+  const hit=tot>=tgt;
+  const pct=(tot/tgt*100).toFixed(1);
+  const title=mo==='all'?'เมษายน – กรกฎาคม 2569':MO[mo]+' 2569';
+  const badge=hit
+    ?`<span class="badge badge-hit">เกินเป้า +${fmtB(tot-tgt)}</span>`
+    :`<span class="badge badge-miss">ขาดเป้า -${fmtB(tgt-tot)} (${pct}%)</span>`;
+  document.getElementById('hdr').className='summary-hd '+(hit?'sh-hit':'sh-miss');
+  document.getElementById('hdr').innerHTML=`
+    <div>
+      <p class="sh-title">${title}</p>
+      <p class="sh-sub">เป้าหมายรวม ${fmtB(tgt)} · ยอดจริงรวม ${fmtB(tot)}</p>
+    </div>${badge}`;
+}
+
+function renderKPI(){
+  const idxs=mo==='all'?[0,1,2,3]:[mo];
+  const tot=idxs.reduce((a,i)=>a+D.total[i],0);
+  const tgt=idxs.reduce((a,i)=>a+D.target[i],0);
+  const hit=tot>=tgt;
+  const pct=(tot/tgt*100).toFixed(1);
+  const gap=Math.abs(tgt-tot);
+  let momHtml='';
+  if(mo!=='all'&&mo>0){
+    const chg=((D.total[mo]-D.total[mo-1])/D.total[mo-1]*100).toFixed(1);
+    momHtml=`<div class="kpi kpi-plain"><p class="kpi-lbl">เติบโต MoM</p><p class="kpi-val ${chg>=0?'up':'down'}">${chg>=0?'▲':'▼'} ${Math.abs(chg)}%</p><p class="kpi-chg neu">จาก${MOS[mo-1]}</p></div>`;
+  }
+  document.getElementById('kpiGrid').innerHTML=`
+    <div class="kpi kpi-target"><p class="kpi-lbl">⭐ เป้าหมาย</p><p class="kpi-val">${fmtB(tgt)}</p><p class="kpi-chg" style="color:var(--amber)">${mo==='all'?'เม.ย.–ก.ค.':MOS[mo]}</p></div>
+    <div class="kpi kpi-plain"><p class="kpi-lbl">ยอดรวมที่ทำได้</p><p class="kpi-val ${hit?'up':'down'}">${fmtB(tot)}</p><p class="kpi-chg ${hit?'up':'down'}">${pct}% ของเป้า</p></div>
+    <div class="kpi kpi-plain"><p class="kpi-lbl">${hit?'เกินเป้า':'ขาดเป้า'}</p><p class="kpi-val ${hit?'up':'down'}">${fmtB(gap)}</p><p class="kpi-chg ${hit?'up':'down'}">${hit?'+':'-'}${((gap/tgt)*100).toFixed(1)}%</p></div>
+    ${momHtml}`;
+}
+
+function renderChart(){
+  if(mainC) mainC.destroy();
+  const grid='#1e2d45';
+  const tc='#3a4d66';
+  if(mo==='all'){
+    const paired=MOS.map((l,i)=>({label:l,total:D.total[i],target:D.target[i]}));
+    paired.sort((a,b)=>b.total-a.total);
+    mainC=new Chart(document.getElementById('mainChart'),{
+      type:'bar',
+      data:{labels:paired.map(p=>p.label),datasets:[
+        {label:'เป้าหมาย',data:paired.map(p=>p.target),type:'line',borderColor:'#f5a623',borderWidth:2.5,borderDash:[6,4],pointBackgroundColor:'#f5a623',pointBorderColor:'#0d1117',pointBorderWidth:2,pointRadius:7,fill:false,order:0},
+        {label:'ยอดที่ทำได้',data:paired.map(p=>p.total),backgroundColor:paired.map(p=>p.total>=p.target?'#0fb86a':'#3d8ef0'),borderRadius:5,borderSkipped:false},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmtB(c.raw)}`}}},
+        scales:{
+          x:{ticks:{color:tc,font:{size:12}},grid:{display:false}},
+          y:{ticks:{color:tc,font:{size:11},callback:v=>fmtB(v)},grid:{color:grid}}
+        }}
+    });
+  } else {
+    const pfs=['shopee','lazada','tiktok','bkk'];
+    const paired=pfs.map(p=>({name:NAMES[p],color:C[p],act:D[p][mo],tgt:D['tgt_'+p][mo]}));
+    paired.sort((a,b)=>b.act-a.act);
+    mainC=new Chart(document.getElementById('mainChart'),{
+      type:'bar',
+      data:{labels:paired.map(p=>p.name),datasets:[
+        {label:'เป้าหมาย',data:paired.map(p=>p.tgt),type:'line',borderColor:'#f5a623',borderWidth:2.5,borderDash:[6,4],pointBackgroundColor:'#f5a623',pointBorderColor:'#0d1117',pointBorderWidth:2,pointRadius:7,fill:false,order:0},
+        {label:'ยอดที่ทำได้',data:paired.map(p=>p.act),backgroundColor:paired.map(p=>p.color),borderRadius:5,borderSkipped:false},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmtB(c.raw)}`}}},
+        scales:{
+          x:{ticks:{color:tc},grid:{display:false}},
+          y:{ticks:{color:tc,font:{size:11},callback:v=>fmtB(v)},grid:{color:grid}}
+        }}
+    });
+  }
+}
+
+function renderPF(){
+  const pfs=['shopee','lazada','tiktok','bkk'];
+  let html='';
+
+  if(mo==='all'){
+    // โหมดทั้งหมด — แสดง MoM growth bar chart รายแพลตฟอร์ม
+    document.getElementById('pfSec').textContent='อัตราการเติบโต MoM รายแพลตฟอร์ม (เม.ย.–ก.ค.)';
+    const growths={
+      shopee:[null,+((D.shopee[1]-D.shopee[0])/D.shopee[0]*100).toFixed(1),+((D.shopee[2]-D.shopee[1])/D.shopee[1]*100).toFixed(1),+((D.shopee[3]-D.shopee[2])/D.shopee[2]*100).toFixed(1)],
+      lazada:[null,+((D.lazada[1]-D.lazada[0])/D.lazada[0]*100).toFixed(1),+((D.lazada[2]-D.lazada[1])/D.lazada[1]*100).toFixed(1),+((D.lazada[3]-D.lazada[2])/D.lazada[2]*100).toFixed(1)],
+      tiktok:[null,+((D.tiktok[1]-D.tiktok[0])/D.tiktok[0]*100).toFixed(1),+((D.tiktok[2]-D.tiktok[1])/D.tiktok[1]*100).toFixed(1),+((D.tiktok[3]-D.tiktok[2])/D.tiktok[2]*100).toFixed(1)],
+      bkk:   [null,+((D.bkk[1]-D.bkk[0])/D.bkk[0]*100).toFixed(1),+((D.bkk[2]-D.bkk[1])/D.bkk[1]*100).toFixed(1),+((D.bkk[3]-D.bkk[2])/D.bkk[2]*100).toFixed(1)],
+    };
+    pfs.forEach(p=>{
+      const g=growths[p];
+      const vals=g.filter(v=>v!==null);
+      const avg=+(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+      const isUp=avg>=0;
+      const col=isUp?'var(--green)':'var(--red)';
+      const maxAbs=Math.max(...vals.map(v=>Math.abs(v)),1);
+      let barsHtml='';
+      MOS.forEach((lbl,i)=>{
+        const v=g[i];
+        if(v===null){
+          barsHtml+=`<div class="gc-bar-row"><span class="gc-bar-lbl">${lbl}</span><div class="gc-bar-track"><span style="position:absolute;left:50%;font-size:9px;color:var(--text3);transform:translateX(-50%);top:-1px">—</span></div><span class="gc-bar-val" style="color:var(--text3)">เดือนแรก</span></div>`;
+        } else {
+          const w=Math.min(Math.abs(v)/maxAbs*50,50);
+          const barHtml=v>=0
+            ?`<div class="gc-bar-pos" style="width:${w}%;background:${C[p]}"></div>`
+            :`<div class="gc-bar-neg" style="width:${w}%;background:var(--red)"></div>`;
+          barsHtml+=`<div class="gc-bar-row"><span class="gc-bar-lbl">${lbl}</span><div class="gc-bar-track">${barHtml}</div><span class="gc-bar-val" style="color:${v>=0?C[p]:'var(--red)'}">${v>=0?'+':''}${v}%</span></div>`;
+        }
+      });
+      html+=`<div class="pf-card" style="border-left:3px solid ${C[p]}">
+        <div class="pf-header"><span class="pf-name">${NAMES[p]}</span><span style="width:8px;height:8px;border-radius:50%;background:${C[p]};display:inline-block"></span></div>
+        <p class="gc-main" style="color:${col}">${isUp?'▲ +':'▼ '}${Math.abs(avg)}%</p>
+        <p class="gc-sub">เฉลี่ย MoM · เม.ย.–ก.ค.</p>
+        <div class="gc-bars">${barsHtml}</div>
+      </div>`;
+    });
+
+  } else {
+    // โหมดทีละเดือน — แสดงเป้า + ยอดจริง + progress bar เหมือนในรูป
+    document.getElementById('pfSec').textContent='แยกรายแพลตฟอร์ม — '+MO[mo]+' 2569';
+    pfs.forEach(p=>{
+      const act=D[p][mo];
+      const tgt=D['tgt_'+p][mo];
+      const pct=Math.min(act/tgt*100,100).toFixed(1);
+      const hit=act>=tgt;
+      html+=`<div class="pf-card" style="border-left:3px solid ${C[p]}">
+        <div class="pf-header">
+          <span class="pf-name">${NAMES[p]}</span>
+          <span class="pf-pct ${hit?'up':'down'}">${pct}%</span>
+        </div>
+        <div class="pf-tgt-row"><span class="pf-tgt-badge">⭐ เป้า</span><span class="pf-tgt-val">${fmtB(tgt)}</span></div>
+        <div class="pf-act-row"><span class="pf-act-lbl">ทำได้</span><span class="pf-act-val">${fmtB(act)}</span></div>
+        <div class="prog-track"><div class="prog-bar" style="width:${pct}%;background:${C[p]}"></div></div>
+        <p class="pf-gap ${hit?'up':'down'}">${hit?'เกิน +':'ขาด -'}${fmtB(Math.abs(act-tgt))}</p>
+      </div>`;
+    });
+  }
+  document.getElementById('pfGrid').innerHTML=html;
+}
+
+function setMo(m,btn){
+  mo=m;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function render(){renderHdr();renderKPI();renderChart();renderPF();}
+render();
+</script>
+</body>
+</html>
