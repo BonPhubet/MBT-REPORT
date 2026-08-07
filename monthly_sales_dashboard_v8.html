@@ -1,0 +1,234 @@
+
+<h2 class="sr-only">Dashboard ยอดขายรวมทุกแพลตฟอร์ม เมษายน–กรกฎาคม 2569 พร้อมอัตราการเติบโต MoM</h2>
+<style>
+.wrap{padding:1rem 0}
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.filter-lbl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);white-space:nowrap}
+.fbtn{padding:5px 16px;border-radius:20px;border:0.5px solid var(--border-strong);background:transparent;color:var(--text-secondary);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.fbtn:hover{color:var(--text-primary)}
+.fbtn.active{background:#2a78d6;border-color:#2a78d6;color:#fff;font-weight:700}
+.divider{height:0.5px;background:var(--border);margin:.875rem 0}
+.summary-header{border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.sh-hit{border-left:4px solid #1baf7a;background:var(--surface-1)}
+.sh-miss{border-left:4px solid #e34948;background:var(--surface-1)}
+.sh-title{font-size:18px;font-weight:500;color:var(--text-primary)}
+.sh-sub{font-size:12px;color:var(--text-secondary);margin-top:3px}
+.badge{padding:4px 14px;border-radius:20px;font-size:12px;font-weight:500}
+.badge-hit{background:#eaf3de;color:#3b6d11}
+.badge-miss{background:#fcebeb;color:#a32d2d}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{border-radius:var(--radius);padding:1rem 1.125rem}
+.kpi-plain{background:var(--surface-1)}
+.kpi-target{background:#fffbeb;border:1.5px solid #eda100}
+.kpi-lbl{font-size:11px;color:var(--text-secondary);margin-bottom:6px}
+.kpi-val{font-size:20px;font-weight:500;line-height:1;margin-bottom:4px}
+.kpi-chg{font-size:12px;font-weight:500}
+.kpi-target .kpi-lbl{color:#92400e;font-weight:600}
+.kpi-target .kpi-val{color:#78350f}
+.up{color:#1baf7a}.down{color:#e34948}.neu{color:var(--text-muted)}
+.sec{font-size:11px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);margin:1.25rem 0 .75rem;padding-bottom:.5rem;border-bottom:0.5px solid var(--border)}
+.chart-wrap{position:relative;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:12px;color:var(--text-secondary)}
+.legend span{display:flex;align-items:center;gap:5px}
+.leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* Growth cards */
+.growth-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.25rem}
+.growth-card{background:var(--surface-1);border-radius:12px;padding:1rem 1.125rem}
+.gc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.gc-name{font-size:12px;font-weight:500;color:var(--text-primary)}
+.gc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.gc-main{font-size:28px;font-weight:500;line-height:1;margin-bottom:4px}
+.gc-sub{font-size:11px;color:var(--text-secondary);margin-bottom:10px}
+.gc-bars{display:flex;flex-direction:column;gap:5px}
+.gc-bar-row{display:flex;align-items:center;gap:6px;font-size:11px}
+.gc-bar-lbl{color:var(--text-muted);width:30px;flex-shrink:0;text-align:right}
+.gc-bar-wrap{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;position:relative}
+.gc-bar-pos{height:100%;border-radius:3px;position:absolute;left:50%}
+.gc-bar-neg{height:100%;border-radius:3px;position:absolute;right:50%}
+.gc-bar-val{font-size:11px;font-weight:500;width:42px;text-align:right;flex-shrink:0}
+.gc-note{font-size:10px;color:var(--text-muted);margin-top:8px;font-style:italic}
+</style>
+
+<div class="wrap">
+<div class="filter-row">
+  <span class="filter-lbl">เดือน:</span>
+  <button class="fbtn" onclick="setMo('all',this)">ทั้งหมด</button>
+  <button class="fbtn active" onclick="setMo(0,this)">เมษายน</button>
+  <button class="fbtn" onclick="setMo(1,this)">พฤษภาคม</button>
+  <button class="fbtn" onclick="setMo(2,this)">มิถุนายน</button>
+  <button class="fbtn" onclick="setMo(3,this)">กรกฎาคม</button>
+</div>
+<div class="divider"></div>
+
+<div class="summary-header" id="hdr"></div>
+<div class="kpi-grid" id="kpiGrid"></div>
+
+<p class="sec">ยอดรวมทุกแพลตฟอร์ม vs เป้าหมาย</p>
+<div class="legend">
+  <span><span class="leg-sq" style="background:transparent;border:2px dashed #eda100"></span>เป้าหมาย</span>
+  <span><span class="leg-sq" style="background:#2a78d6"></span>ยอดที่ทำได้</span>
+</div>
+<div class="chart-wrap" style="height:220px">
+  <canvas id="mainChart" role="img" aria-label="กราฟยอดรวมทุกแพลตฟอร์มเทียบเป้าหมาย"></canvas>
+</div>
+
+<p class="sec">อัตราการเติบโต MoM รายแพลตฟอร์ม</p>
+<div class="growth-grid" id="growthGrid"></div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const MO=['เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม'];
+const MOS=['เม.ย.','พ.ค.','มิ.ย.','ก.ค.'];
+const D={
+  target:[9871864,8449663,9600000,11200000],
+  total: [7578338,8620332,10011536,11302469],
+  shopee:[3565507,5266486,6440747,7018523],
+  lazada:[612904,818593,814910,675413],
+  tiktok:[1714196,2246296,2632031,3197365],
+  bkk:   [267640,288957,123848,411167],
+};
+const C={shopee:'#eb6834',lazada:'#1baf7a',tiktok:'#2a78d6',bkk:'#7c3aed'};
+const NAMES={shopee:'Shopee',lazada:'Lazada',tiktok:'TikTok Shop',bkk:'บุคคล'};
+let mo=0,mainC;
+
+function fmt(n){return Math.round(n).toLocaleString('th-TH');}
+function fmtB(n){return '฿'+fmt(n);}
+function mom(arr,i){return i===0?null:+((arr[i]-arr[i-1])/arr[i-1]*100).toFixed(1);}
+
+function renderHdr(){
+  const idxs=mo==='all'?[0,1,2,3]:[mo];
+  const tot=idxs.reduce((a,i)=>a+D.total[i],0);
+  const tgt=idxs.reduce((a,i)=>a+D.target[i],0);
+  const hit=tot>=tgt;
+  const pct=(tot/tgt*100).toFixed(1);
+  const title=mo==='all'?'เมษายน – กรกฎาคม 2569':MO[mo]+' 2569';
+  const badge=hit
+    ?`<span class="badge badge-hit">เกินเป้า +${fmtB(tot-tgt)}</span>`
+    :`<span class="badge badge-miss">ขาดเป้า -${fmtB(tgt-tot)} (${pct}%)</span>`;
+  document.getElementById('hdr').className='summary-header '+(hit?'sh-hit':'sh-miss');
+  document.getElementById('hdr').innerHTML=`<div><p class="sh-title">${title}</p><p class="sh-sub">เป้าหมายรวม ${fmtB(tgt)} · ยอดจริงรวม ${fmtB(tot)}</p></div>${badge}`;
+}
+
+function renderKPI(){
+  const idxs=mo==='all'?[0,1,2,3]:[mo];
+  const tot=idxs.reduce((a,i)=>a+D.total[i],0);
+  const tgt=idxs.reduce((a,i)=>a+D.target[i],0);
+  const hit=tot>=tgt;
+  const pct=(tot/tgt*100).toFixed(1);
+  const gap=Math.abs(tgt-tot);
+  let momHtml='';
+  if(mo!=='all'&&mo>0){
+    const chg=((D.total[mo]-D.total[mo-1])/D.total[mo-1]*100).toFixed(1);
+    momHtml=`<div class="kpi kpi-plain"><p class="kpi-lbl">เติบโต MoM รวม</p><p class="kpi-val ${chg>=0?'up':'down'}">${chg>=0?'▲':'▼'} ${Math.abs(chg)}%</p><p class="kpi-chg neu">จาก${MOS[mo-1]}</p></div>`;
+  }
+  document.getElementById('kpiGrid').innerHTML=`
+    <div class="kpi kpi-target"><p class="kpi-lbl">⭐ เป้าหมาย</p><p class="kpi-val">${fmtB(tgt)}</p><p class="kpi-chg" style="color:#92400e">${mo==='all'?'เม.ย.–ก.ค.':MOS[mo]}</p></div>
+    <div class="kpi kpi-plain"><p class="kpi-lbl">ยอดรวมที่ทำได้</p><p class="kpi-val ${hit?'up':'down'}">${fmtB(tot)}</p><p class="kpi-chg ${hit?'up':'down'}">${pct}% ของเป้า</p></div>
+    <div class="kpi kpi-plain"><p class="kpi-lbl">${hit?'เกินเป้า':'ขาดเป้า'}</p><p class="kpi-val ${hit?'up':'down'}">${fmtB(gap)}</p><p class="kpi-chg ${hit?'up':'down'}">${hit?'+':'-'}${((gap/tgt)*100).toFixed(1)}%</p></div>
+    ${momHtml}`;
+}
+
+function renderGrowth(){
+  const pfs=['shopee','lazada','tiktok','bkk'];
+  let html='';
+
+  pfs.forEach(p=>{
+    const arr=D[p];
+    // คำนวณ MoM ทุกเดือน
+    const growths=[null,mom(arr,1),mom(arr,2),mom(arr,3)]; // เม.ย.=null, พ.ค., มิ.ย., ก.ค.
+
+    // ถ้าดูทีละเดือน แสดง MoM ของเดือนนั้น
+    // ถ้าดูทั้งหมด แสดงทุกเดือน
+    let mainVal, mainLabel, subText;
+
+    if(mo==='all'){
+      // ค่าเฉลี่ย MoM ของทุกเดือน (ยกเว้น null)
+      const vals=growths.filter(v=>v!==null);
+      const avg=(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+      mainVal=avg;
+      mainLabel='เฉลี่ย MoM';
+      subText='เม.ย.–ก.ค.';
+    } else {
+      mainVal=growths[mo];
+      mainLabel=mainVal===null?'—':'MoM';
+      subText=mainVal===null?'เดือนแรก':'เทียบ'+MOS[mo-1];
+    }
+
+    const isUp=mainVal>=0;
+    const color=mainVal===null?'var(--text-muted)':isUp?'#1baf7a':'#e34948';
+    const valStr=mainVal===null?'—':(isUp?'▲ +':'▼ ')+Math.abs(mainVal)+'%';
+
+    // mini bar chart แสดง MoM แต่ละเดือน
+    let barsHtml='';
+    const maxAbs=Math.max(...growths.filter(v=>v!==null).map(v=>Math.abs(v)),1);
+    MOS.forEach((lbl,i)=>{
+      const g=growths[i];
+      if(g===null){
+        barsHtml+=`<div class="gc-bar-row"><span class="gc-bar-lbl">${lbl}</span><div class="gc-bar-wrap"><span style="position:absolute;left:50%;font-size:9px;color:var(--text-muted);transform:translateX(-50%)">เดือนแรก</span></div><span class="gc-bar-val" style="color:var(--text-muted)">—</span></div>`;
+      } else {
+        const w=Math.min(Math.abs(g)/maxAbs*50,50);
+        const barStyle=g>=0
+          ?`<div class="gc-bar-pos" style="width:${w}%;background:#1baf7a"></div>`
+          :`<div class="gc-bar-neg" style="width:${w}%;background:#e34948"></div>`;
+        const valColor=g>=0?'#1baf7a':'#e34948';
+        barsHtml+=`<div class="gc-bar-row"><span class="gc-bar-lbl">${lbl}</span><div class="gc-bar-wrap">${barStyle}</div><span class="gc-bar-val" style="color:${valColor}">${g>=0?'+':''}${g}%</span></div>`;
+      }
+    });
+
+    html+=`<div class="growth-card" style="border-left:3px solid ${C[p]}">
+      <div class="gc-header">
+        <span class="gc-name">${NAMES[p]}</span>
+        <span class="gc-dot" style="background:${C[p]}"></span>
+      </div>
+      <p class="gc-main" style="color:${color}">${valStr}</p>
+      <p class="gc-sub">${mainLabel} · ${subText}</p>
+      <div class="gc-bars">${barsHtml}</div>
+    </div>`;
+  });
+  document.getElementById('growthGrid').innerHTML=html;
+}
+
+function renderChart(){
+  if(mainC) mainC.destroy();
+  const grid='#e1e0d9';
+  if(mo==='all'){
+    const paired=MOS.map((l,i)=>({label:l,total:D.total[i],target:D.target[i]}));
+    paired.sort((a,b)=>b.total-a.total);
+    mainC=new Chart(document.getElementById('mainChart'),{
+      type:'bar',
+      data:{labels:paired.map(p=>p.label),datasets:[
+        {label:'เป้าหมาย',data:paired.map(p=>p.target),type:'line',borderColor:'#eda100',borderWidth:2.5,borderDash:[6,4],pointBackgroundColor:'#eda100',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:7,fill:false,order:0},
+        {label:'ยอดที่ทำได้',data:paired.map(p=>p.total),backgroundColor:paired.map(p=>p.total>=p.target?'#1baf7a':'#2a78d6'),borderRadius:4,borderSkipped:false},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmtB(c.raw)}`}}},
+        scales:{x:{ticks:{color:'#888780',autoSkip:false},grid:{display:false}},y:{ticks:{color:'#888780',callback:v=>fmtB(v)},grid:{color:grid}}}}
+    });
+  } else {
+    const pfs=['shopee','lazada','tiktok','bkk'];
+    const paired=pfs.map(p=>({name:NAMES[p],color:C[p],act:D[p][mo],tgt:D['tgt_'+p]?.[mo]||0}));
+    paired.sort((a,b)=>b.act-a.act);
+    mainC=new Chart(document.getElementById('mainChart'),{
+      type:'bar',
+      data:{labels:paired.map(p=>p.name),datasets:[
+        {label:'ยอดที่ทำได้',data:paired.map(p=>p.act),backgroundColor:paired.map(p=>p.color),borderRadius:4,borderSkipped:false},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmtB(c.raw)}`}}},
+        scales:{x:{ticks:{color:'#888780'},grid:{display:false}},y:{ticks:{color:'#888780',callback:v=>fmtB(v)},grid:{color:grid}}}}
+    });
+  }
+}
+
+function setMo(m,btn){
+  mo=m;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function render(){renderHdr();renderKPI();renderChart();renderGrowth();}
+render();
+</script>
