@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBT Report — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<!-- SALES CSS -->
+<style>
+
+
+:root{
+  --bg:#060910;--bg2:#0d1117;--bg3:#161b27;--bg4:#1e2435;
+  --border:#1e2d45;--border2:#2a3d5a;
+  --text:#e8eef8;--text2:#7a8fad;--text3:#3a4d66;
+  --accent:#3d8ef0;--green:#0fb86a;--red:#f04458;
+  --amber:#f5a623;--orange:#f07340;--purple:#9b6cf5;
+  --shopee:#ff6b2b;--lazada:#1a6fe8;--tiktok:#888fa8;--bkk:#0fb86a;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai','Inter',sans-serif;background:var(--bg);color:var(--text);padding:1.5rem 1rem;font-size:14px;min-height:100vh}
+.container{max-width:960px;margin:0 auto}
+
+.header{background:linear-gradient(135deg,#0d1117 0%,#111827 100%);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 0 0 1px rgba(61,142,240,.08),0 4px 24px rgba(0,0,0,.4)}
+.brand{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.h-title{font-size:18px;font-weight:700;color:var(--text)}
+.h-right{text-align:right}
+.h-date{font-size:13px;font-weight:600;color:var(--text)}
+.h-sub{font-size:11px;color:var(--text3);margin-top:3px}
+
+.filter-bar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1.25rem;margin-bottom:.75rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);white-space:nowrap}
+.fbtn{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.fbtn:hover{border-color:var(--accent);color:var(--accent)}
+.fbtn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.fbtn.q-active{background:#7c3aed;border-color:#7c3aed;color:#fff;font-weight:700}
+.divider-v{width:1px;height:20px;background:var(--border);margin:0 2px;flex-shrink:0}
+
+.summary-hd{border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border:1px solid var(--border)}
+.sh-hit{background:var(--bg2);border-left:4px solid var(--green)!important}
+.sh-miss{background:var(--bg2);border-left:4px solid var(--red)!important}
+.sh-neu{background:var(--bg2);border-left:4px solid var(--text3)!important}
+.sh-title{font-size:17px;font-weight:700;color:var(--text)}
+.sh-sub{font-size:12px;color:var(--text2);margin-top:3px}
+.badge{padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-hit{background:rgba(15,184,106,.12);color:var(--green);border:1px solid rgba(15,184,106,.25)}
+.badge-miss{background:rgba(240,68,88,.1);color:var(--red);border:1px solid rgba(240,68,88,.22)}
+.badge-neu{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.badge-future{background:rgba(245,166,35,.08);color:var(--amber);border:1px solid rgba(245,166,35,.2)}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{border-radius:var(--radius);padding:1rem 1.125rem}
+.kpi-plain{background:var(--bg2);border:1px solid var(--border)}
+.kpi-target{background:rgba(245,166,35,.06);border:1.5px solid rgba(245,166,35,.3)}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.kpi-target .kpi-lbl{color:var(--amber)}
+.kpi-val{font-size:19px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-target .kpi-val{color:var(--amber)}
+.kpi-chg{font-size:12px;font-weight:600}
+.up{color:var(--green)}.down{color:var(--red)}.neu{color:var(--text3)}
+
+.sec{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin:1.5rem 0 .875rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.chart-wrap{position:relative;width:100%;margin-bottom:1.25rem}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.legend span{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* Q badge */
+.q-label{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;margin-bottom:6px}
+.q1{background:rgba(61,142,240,.12);color:#3d8ef0}
+.q2{background:rgba(155,108,245,.12);color:#9b6cf5}
+.q3{background:rgba(15,184,106,.12);color:#0fb86a}
+.q4{background:rgba(245,166,35,.12);color:#f5a623}
+
+.pf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.25rem}
+.pf-card{background:var(--bg2);border-radius:var(--radius);padding:1rem 1.125rem}
+.pf-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pf-name{font-size:12px;font-weight:600;color:var(--text)}
+.pf-pct{font-size:12px;font-weight:700}
+.pf-tgt-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.pf-tgt-badge{font-size:10px;font-weight:700;color:var(--amber);background:rgba(245,166,35,.08);border:0.5px solid rgba(245,166,35,.25);padding:2px 7px;border-radius:10px}
+.pf-tgt-val{font-size:13px;font-weight:600;color:var(--amber)}
+.pf-act-row{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.pf-act-lbl{font-size:10px;color:var(--text3)}
+.pf-act-val{font-size:15px;font-weight:700;color:var(--text)}
+.prog-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.prog-bar{height:100%;border-radius:3px}
+.pf-gap{font-size:11px;font-weight:500}
+
+.gc-main{font-size:26px;font-weight:700;line-height:1;margin-bottom:3px}
+.gc-sub{font-size:11px;color:var(--text2);margin-bottom:10px}
+.gc-bars{display:flex;flex-direction:column;gap:5px}
+.gc-bar-row{display:flex;align-items:center;gap:6px}
+.gc-bar-lbl{font-size:10px;color:var(--text3);width:30px;text-align:right;flex-shrink:0}
+.gc-bar-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;position:relative}
+.gc-bar-pos{height:100%;border-radius:3px;position:absolute;left:50%}
+.gc-bar-neg{height:100%;border-radius:3px;position:absolute;right:50%}
+.gc-bar-val{font-size:11px;font-weight:600;width:44px;text-align:right;flex-shrink:0}
+
+.footer{text-align:center;font-size:11px;color:var(--text3);padding-top:1rem;border-top:1px solid var(--border);margin-top:1.5rem}
+@media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.pf-grid{grid-template-columns:1fr}}
+
+
+/* NAV */
+.nav-bar{background:linear-gradient(135deg,#060910 0%,#0d1117 100%);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+.nav-brand{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-right:8px}
+.nav-btn{padding:6px 16px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.nav-btn.nav-active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+
+/* PAGE */
+.page{display:none}.page.active{display:block}
+
+/* Product page extra styles */
+.tabs{display:flex;gap:0;margin-bottom:1.25rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:4px}
+.tab{flex:1;padding:8px;text-align:center;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);border-radius:8px;transition:all .15s}
+.tab.active{background:var(--accent);color:#fff;font-weight:700}
+.tiktok-badge{background:rgba(61,142,240,.1);border:1px solid rgba(61,142,240,.25);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.prod-table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden}
+.prod-table th{text-align:left;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border)}
+.prod-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:middle;color:var(--text)}
+.prod-table tr:last-child td{border-bottom:none}
+.prod-table tr:hover td{background:rgba(255,255,255,.02)}
+.rank-cell{font-size:13px;font-weight:700;width:28px}
+.r1{color:#f59e0b}.r2{color:#9ca3af}.r3{color:#cd7c3b}
+.name-cell{font-size:12.5px;font-weight:500;max-width:220px}
+.num-cell{font-size:12.5px;font-weight:600;text-align:right;white-space:nowrap}
+.gmv-cell{color:var(--accent)}.imp-cell{color:var(--purple)}.items-cell{color:var(--text2)}
+.bar-wrap{display:flex;align-items:center;gap:6px}
+.bar-bg{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;max-width:80px}
+.bar-fill{height:100%;border-radius:3px}
+.opp-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(245,166,35,.1);color:var(--amber);border:0.5px solid rgba(245,166,35,.25)}
+.pf-filter-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:8px}
+.pf-shopee{background:rgba(255,107,43,.1);color:#ff6b2b;border:1px solid rgba(255,107,43,.25)}
+.pf-lazada{background:rgba(26,111,232,.1);color:#1a6fe8;border:1px solid rgba(26,111,232,.25)}
+.pf-tiktok{background:rgba(61,142,240,.1);color:#3d8ef0;border:1px solid rgba(61,142,240,.25)}
+@media(max-width:600px){
+  .prod-table td:nth-child(4),.prod-table th:nth-child(4){display:none}
+  .name-cell{max-width:140px}
+  .nav-bar{flex-wrap:wrap;gap:8px}
+}
+
+
+/* LDR REPORT CSS */
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai','Inter',sans-serif;background:var(--bg);color:var(--text);padding:1.5rem 1rem;font-size:14px}
+.container{max-width:960px;margin:0 auto}
+
+.header{background:linear-gradient(135deg,#0d1117,#111827);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.brand{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.h-title{font-size:20px;font-weight:700}
+.h-sub{font-size:12px;color:var(--text2);margin-top:4px}
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700}
+.s-resolved{background:rgba(15,184,106,.12);border:1px solid rgba(15,184,106,.3);color:var(--green)}
+.s-inprogress{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);color:var(--amber)}
+
+.sec{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin:1.75rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{border-radius:var(--radius);padding:1rem 1.125rem;background:var(--bg2);border:1px solid var(--border)}
+.kpi-red{background:rgba(240,68,88,.06);border:1.5px solid rgba(240,68,88,.3)}
+.kpi-green{background:rgba(15,184,106,.06);border:1.5px solid rgba(15,184,106,.3)}
+.kpi-amber{background:rgba(245,166,35,.06);border:1.5px solid rgba(245,166,35,.3)}
+.kpi-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:7px}
+.kpi-red .kpi-lbl{color:var(--red)}
+.kpi-green .kpi-lbl{color:var(--green)}
+.kpi-amber .kpi-lbl{color:var(--amber)}
+.kpi-val{font-size:22px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--text3)}
+
+/* Cause cards */
+.cause-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem}
+.cause-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;position:relative;overflow:hidden}
+.cause-num{font-size:48px;font-weight:900;position:absolute;right:12px;top:4px;line-height:1;opacity:.07}
+.cause-icon{font-size:24px;margin-bottom:10px}
+.cause-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px}
+.cause-desc{font-size:12px;color:var(--text2);line-height:1.75}
+.cause-stat{display:inline-block;margin-top:10px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:rgba(240,68,88,.1);color:var(--red);border:0.5px solid rgba(240,68,88,.25)}
+
+/* Timeline */
+.timeline{display:flex;flex-direction:column;gap:0;margin-bottom:1.25rem;position:relative}
+.timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{display:flex;gap:16px;position:relative;padding-bottom:20px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;z-index:1}
+.tl-red{background:rgba(240,68,88,.15);border:2px solid var(--red)}
+.tl-amber{background:rgba(245,166,35,.12);border:2px solid var(--amber)}
+.tl-green{background:rgba(15,184,106,.12);border:2px solid var(--green)}
+.tl-blue{background:rgba(61,142,240,.12);border:2px solid var(--accent)}
+.tl-content{flex:1;padding-top:6px}
+.tl-date{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px}
+.tl-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px}
+.tl-desc{font-size:12px;color:var(--text2);line-height:1.75}
+
+/* Fix cards */
+.fix-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:1.25rem}
+.fix-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.fix-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fix-icon{font-size:20px}
+.fix-title{font-size:13px;font-weight:700;color:var(--text)}
+.fix-badge{margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.f-done{background:rgba(15,184,106,.1);color:var(--green);border:0.5px solid rgba(15,184,106,.25)}
+.f-doing{background:rgba(245,166,35,.1);color:var(--amber);border:0.5px solid rgba(245,166,35,.2)}
+.fix-desc{font-size:12px;color:var(--text2);line-height:1.75}
+.fix-steps{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+.fix-step{font-size:11px;color:var(--text2);padding-left:14px;position:relative}
+.fix-step::before{content:'›';position:absolute;left:0;color:var(--accent);font-weight:700}
+
+/* Picking List Diagram */
+.picking-flow{display:flex;align-items:center;gap:0;margin:12px 0}
+.pf-box{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.875rem 1rem;text-align:center}
+.pf-num{font-size:22px;font-weight:700;color:var(--accent);margin-bottom:4px}
+.pf-role{font-size:12px;font-weight:700;color:var(--text)}
+.pf-desc{font-size:10px;color:var(--text3);margin-top:3px}
+.pf-arrow{font-size:20px;color:var(--text3);padding:0 8px;flex-shrink:0}
+
+/* Pre-order section */
+.po-card{background:rgba(61,142,240,.04);border:1px solid rgba(61,142,240,.18);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem}
+.po-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px}
+.po-desc{font-size:12px;color:var(--text2);line-height:1.75;margin-bottom:10px}
+.po-fee{background:var(--bg3);border-radius:8px;padding:.875rem 1rem;font-size:12px}
+.po-fee strong{color:var(--amber)}
+
+/* Daily report section */
+.daily-card{background:rgba(15,184,106,.04);border:1px solid rgba(15,184,106,.18);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem}
+.daily-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px}
+.daily-flow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.df-step{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--text2);text-align:center;flex:1;min-width:100px}
+.df-arrow{font-size:16px;color:var(--text3);align-self:center;flex-shrink:0}
+
+.footer{text-align:center;font-size:11px;color:var(--text3);padding-top:1rem;border-top:1px solid var(--border);margin-top:1.5rem}
+@media(max-width:600px){
+  .cause-grid{grid-template-columns:1fr}
+  .fix-grid{grid-template-columns:1fr}
+  .picking-flow{flex-direction:column}
+  .pf-arrow{transform:rotate(90deg)}
+}
+
+
+
+/* ── AFFILIATE CSS ── */
+.container{max-width:1000px;margin:0 auto}
+
+/* Header */
+.header{background:linear-gradient(135deg,#0d1117 0%,#111827 100%);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 0 0 1px rgba(61,142,240,.08),0 4px 24px rgba(0,0,0,.4)}
+.brand{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.h-title{font-size:18px;font-weight:700;color:var(--text)}
+.highlight-badge{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);color:var(--amber);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+
+/* Filter */
+.filter-bar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3)}
+.aff-fbtn{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.aff-fbtn:hover{border-color:var(--accent);color:var(--accent)}
+.aff-fbtn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.aff-fbtn.highlight{background:rgba(245,166,35,.15);border-color:var(--amber);color:var(--amber)}
+.aff-fbtn.highlight.active{background:var(--amber);border-color:var(--amber);color:#000;font-weight:700}
+
+/* Sec */
+.sec{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin:1.5rem 0 .875rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+
+/* Summary KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.125rem}
+.kpi-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:7px}
+.kpi-val{font-size:20px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--text3)}
+.kpi-highlight{background:rgba(245,166,35,.06);border:1.5px solid rgba(245,166,35,.3)}
+.kpi-highlight .kpi-lbl{color:var(--amber)}
+.kpi-highlight .kpi-val{color:var(--amber)}
+
+/* Chart */
+.chart-wrap{position:relative;height:200px;margin-bottom:1.25rem}
+
+/* Creator Table */
+.cr-table-wrap{overflow-x:auto;margin-bottom:1.5rem}
+table{width:100%;border-collapse:collapse;min-width:700px}
+thead tr{background:var(--bg3)}
+th{padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.rank-cell{font-size:13px;font-weight:700;width:28px}
+.r1{color:#f59e0b}.r2{color:#9ca3af}.r3{color:#cd7c3b}
+.creator-name{font-weight:600;color:var(--text)}
+.creator-link{color:var(--accent);text-decoration:none;font-size:11px;margin-left:6px}
+.creator-link:hover{text-decoration:underline}
+.num-r{text-align:right;font-weight:600;white-space:nowrap}
+.gmv-val{color:var(--accent)}
+.comm-val{color:var(--amber)}
+.roi-val{color:var(--green)}
+.roi-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700}
+.roi-hi{background:rgba(15,184,106,.12);color:var(--green);border:0.5px solid rgba(15,184,106,.25)}
+.roi-mid{background:rgba(61,142,240,.1);color:var(--accent);border:0.5px solid rgba(61,142,240,.2)}
+.type-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-right:2px}
+.bv{background:rgba(61,142,240,.12);color:var(--accent)}
+.bl{background:rgba(240,115,64,.12);color:var(--orange)}
+
+/* MoM trend bars */
+.trend-row{display:flex;gap:3px;align-items:flex-end;height:30px;margin-top:4px}
+.trend-bar{width:8px;border-radius:2px 2px 0 0;background:var(--accent);flex-shrink:0}
+
+/* Growth highlight */
+.growth-alert{background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-left:3px solid var(--amber);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.25rem}
+.growth-title{font-size:13px;font-weight:700;color:var(--amber);margin-bottom:4px}
+.growth-
+
+.footer{text-align:center;font-size:11px;color:var(--text3);padding-top:1rem;border-top:1px solid var(--border);margin-top:1.5rem}
+</style>
+
+
+
+</head>
+<body>
+
+<!-- GLOBAL NAV -->
+<div class="nav-bar">
+  <span class="nav-brand">MBT Report</span>
+  <button class="nav-btn nav-active" onclick="goPage('sales',this)">&#x1F4CA; Dashboard</button>
+  <button class="nav-btn" onclick="goPage('product',this)">&#x1F3C6; รายละเอียดสินค้าขายดี</button>
+  <button class="nav-btn" onclick="goPage('affiliate',this)">&#x1F4E2; รายงาน Affiliate</button>
+
+</div>
+
+<!-- PAGE 1: SALES -->
+<div class="page active" id="page-sales">
+
+<div class="container">
+
+<div class="header">
+  <div>
+    <p class="brand">Microbiotecthailand · ทุกแพลตฟอร์ม</p>
+    <p class="h-title">รายงานยอดขายรวม</p>
+  </div>
+  <div class="h-right">
+    <p class="h-date">มกราคม – สิงหาคม 2569</p>
+    <p class="h-sub">Shopee · Lazada · TikTok Shop · บุคคล</p>
+  </div>
+</div>
+
+<!-- Filter Row 1: Month -->
+<div class="filter-bar">
+  <span class="filter-lbl">เดือน:</span>
+  <button class="fbtn" onclick="setView('all',this)">ทั้งหมด</button>
+  <div class="divider-v"></div>
+  <button class="fbtn" onclick="setView('m0',this)">ม.ค.</button>
+  <button class="fbtn" onclick="setView('m1',this)">ก.พ.</button>
+  <button class="fbtn" onclick="setView('m2',this)">มี.ค.</button>
+  <button class="fbtn active" onclick="setView('m3',this)">เม.ย.</button>
+  <button class="fbtn" onclick="setView('m4',this)">พ.ค.</button>
+  <button class="fbtn" onclick="setView('m5',this)">มิ.ย.</button>
+  <button class="fbtn" onclick="setView('m6',this)">ก.ค.</button>
+  <button class="fbtn" onclick="setView('m7',this)">ส.ค.</button>
+</div>
+
+<!-- Filter Row 2: Quarter -->
+<div class="filter-bar">
+  <span class="filter-lbl">Quarter:</span>
+  <button class="fbtn" onclick="setView('q1',this)">Q1 ม.ค.–มี.ค.</button>
+  <button class="fbtn" onclick="setView('q2',this)">Q2 เม.ย.–มิ.ย.</button>
+  <button class="fbtn" onclick="setView('q3',this)">Q3 ก.ค.–ก.ย.</button>
+  <button class="fbtn" onclick="setView('q4',this)">Q4 ต.ค.–ธ.ค.</button>
+</div>
+
+<div class="summary-hd" id="hdr"></div>
+<div class="kpi-grid" id="kpiGrid"></div>
+
+<p class="sec" id="chartSec">ยอดรวมทุกแพลตฟอร์ม vs เป้าหมาย</p>
+<div class="legend">
+  <span><span class="leg-sq" style="background:transparent;border:2px dashed var(--amber)"></span>เป้าหมาย</span>
+  <span><span class="leg-sq" style="background:#3d8ef0"></span>ยอดที่ทำได้</span>
+  <span><span class="leg-sq" style="background:var(--text3)"></span>ยังไม่มีข้อมูล</span>
+</div>
+<div class="chart-wrap" style="height:230px">
+  <canvas id="mainChart" role="img" aria-label="กราฟยอดรวมทุกแพลตฟอร์ม"></canvas>
+</div>
+
+<p class="sec" id="pfSec">แยกรายแพลตฟอร์ม</p>
+<div class="pf-grid" id="pfGrid"></div>
+
+<div class="footer">Microbiotecthailand · รายงานยอดขายรวมทุกแพลตฟอร์ม · 2569</div>
+</div>
+
+
+
+
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- PAGE 2: PRODUCT DASHBOARD -->
+<!-- ═══════════════════════════════════ -->
+<div class="page" id="page-product">
+<div class="container">
+<div class="header" style="margin-top:1.5rem">
+  <div>
+    <p class="brand">Microbiotecthailand · สินค้าขายดี</p>
+    <p class="h-title">รายละเอียดสินค้าขายดี & สินค้าขายน้อย</p>
+  </div>
+  <span class="tiktok-badge">มี.ค.–ส.ค. 2569</span>
+</div>
+<div class="filter-bar">
+  <span class="filter-lbl">เดือน:</span>
+  <button class="fbtn" onclick="setPMo('ม.ค.',this)">ม.ค.</button>
+  <button class="fbtn" onclick="setPMo('ก.พ.',this)">ก.พ.</button>
+  <button class="fbtn p-active" onclick="setPMo('มี.ค.',this)">มี.ค.</button>
+  <button class="fbtn" onclick="setPMo('เม.ย.',this)">เม.ย.</button>
+  <button class="fbtn" onclick="setPMo('พ.ค.',this)">พ.ค.</button>
+  <button class="fbtn" onclick="setPMo('มิ.ย.',this)">มิ.ย.</button>
+  <button class="fbtn" onclick="setPMo('ก.ค.',this)">ก.ค.</button>
+  <button class="fbtn" onclick="setPMo('ส.ค.',this)">ส.ค.</button>
+</div>
+<div class="filter-bar" id="pf-filter-row">
+  <span class="filter-lbl">แพลตฟอร์ม:</span>
+  <button class="fbtn p2-active" onclick="setPPF('tiktok',this)">TikTok Shop</button>
+  <button class="fbtn" onclick="setPPF('shopee',this)">Shopee</button>
+  <button class="fbtn" onclick="setPPF('lazada',this)">Lazada</button>
+</div>
+<div id="pfBadge" style="margin-bottom:1rem"></div>
+<div class="tabs">
+  <div class="tab active" onclick="setPTab('top',this)">&#x1F3C6; Top 5 สินค้าขายดี</div>
+  <div class="tab" onclick="setPTab('low',this)">&#x1F4C9; สินค้าขายได้น้อย</div>
+</div>
+<div style="position:relative;height:220px;margin-bottom:1.25rem">
+  <canvas id="pBarChart" role="img" aria-label="กราฟ Top 5 สินค้า"></canvas>
+</div>
+<p class="sec" id="pTableSec"></p>
+<div style="overflow-x:auto">
+  <table class="prod-table">
+    <thead id="pTableHead"></thead>
+    <tbody id="pTableBody"></tbody>
+  </table>
+</div>
+<div class="footer" style="margin-bottom:1.5rem">Microbiotecthailand · รายละเอียดสินค้าขายดี · มี.ค.–ส.ค. 2569</div>
+</div>
+</div>
+
+<!-- PAGE 3: AFFILIATE -->
+<div class="page" id="page-affiliate">
+
+<div class="container">
+
+<div class="header">
+  <div>
+    <p class="brand">Microbiotecthailand · Affiliate</p>
+    <p class="h-title">รายงาน Affiliate Creator</p>
+  </div>
+  <span class="highlight-badge">⚡ ส.ค. — ยอดก้าวกระโดด</span>
+</div>
+
+<!-- Filter -->
+<div class="filter-bar">
+  <span class="filter-lbl">เดือน:</span>
+  <button class="aff-fbtn active" onclick="setAffMo('พ.ค.',this)">พ.ค. 2569</button>
+  <button class="aff-fbtn" onclick="setAffMo('มิ.ย.',this)">มิ.ย. 2569</button>
+  <button class="aff-fbtn" onclick="setAffMo('ก.ค.',this)">ก.ค. 2569</button>
+  <button class="aff-fbtn highlight" onclick="setAffMo('ส.ค.',this)">⚡ ส.ค. 2569</button>
+</div>
+
+<!-- Growth Alert (ส.ค. only) -->
+<div class="growth-alert" id="affGrowthAlert" style="display:none">
+  <p class="growth-title">⚡ สิงหาคม — Creator ใหม่พุ่งแรง!</p>
+  <p class="growth-body">
+    @single_nee เข้ามาใหม่และกลายเป็น Top 1 ทันที ด้วย GMV ฿588,846 ใน 5 วัน · ROI 20.09x สูงสุดในรอบ 4 เดือน<br>
+    ตัวเลขเพียง 5 วันแรก (1–5 ส.ค.) มี Creator ทำยอด 229 คน ผลิต Video 195 คลิป + Live 40 ครั้ง
+  </p>
+</div>
+
+<!-- KPI Summary -->
+<p class="sec" id="affSummaryTitle">ภาพรวม Affiliate — พฤษภาคม 2569</p>
+<div class="kpi-grid" id="affKpiGrid"></div>
+
+<!-- GMV Trend Chart -->
+<p class="sec">GMV Affiliate รายเดือน (พ.ค.–ส.ค.)</p>
+<div class="chart-wrap">
+  <canvas id="affTrendChart" role="img" aria-label="กราฟ GMV Affiliate รายเดือน"></canvas>
+</div>
+
+<!-- Top 10 Table -->
+<p class="sec" id="affTopTitle">Top 10 Creator ขายดี — พฤษภาคม 2569</p>
+<div class="cr-table-wrap">
+  <table id="affCrTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Creator</th>
+        <th style="text-align:right">GMV</th>
+        <th style="text-align:right">Orders</th>
+        <th style="text-align:right">Commission</th>
+        <th style="text-align:right">ROI</th>
+        <th>ประเภท</th>
+      </tr>
+    </thead>
+    <tbody id="affCrBody"></tbody>
+  </table>
+</div>
+
+<div class="footer">Microbiotecthailand · Affiliate · พ.ค.–ส.ค. 2569</div>
+</div>
+
+
+
+
+</div>
+
+
+
+<!-- SCRIPTS -->
+<script>
+/* NAV */
+function goPage(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('nav-active'));
+  document.getElementById('page-'+page).classList.add('active');
+  btn.classList.add('nav-active');
+  window.scrollTo(0,0);
+  if(page==='product') renderProduct();
+  if(page==='affiliate') { renderAffKPI(); renderAffTable(); renderAffTrend(); }
+}
+
+/* SALES JS */
+
+/* ── PAGE NAVIGATION ── */
+function goPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('nav-active'));
+  document.getElementById('page-'+page).classList.add('active');
+  btn.classList.add('nav-active');
+  window.scrollTo(0,0);
+  if(page==='product') renderProduct();
+}
+
+/* ══════════════════════════════════════
+   SALES DASHBOARD JS
+══════════════════════════════════════ */
+
+const MO  =['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม'];
+const MOS =['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.'];
+const QN  =['Q1','Q2','Q3','Q4'];
+const QLAB=['Q1 (ม.ค.–มี.ค.)','Q2 (เม.ย.–มิ.ย.)','Q3 (ก.ค.–ก.ย.)','Q4 (ต.ค.–ธ.ค.)'];
+const QIDX=[[0,1,2],[3,4,5],[6],[]] ; // Q3 มีแค่ ก.ค., Q4 ยังไม่มี
+
+const D={
+  target: [8223407,8051925,7915026,9871865,8449664,9600000,11200000,13000000],
+  total:  [5547343,7577743,8012118,7578338,8620332,10011536,11302469,3371268],
+  shopee_t:[4193938,4106482,4897304,5669186,4786621,5500000,6700000,7500000],
+  shopee:  [3565507,4754664,4929727,4671283,5266486,6440747,7018523,1605779],
+  lazada_t:[1151277,1127270,839118, 1637392,850767, 900000, 1000000,1000000],
+  lazada:  [612904, 814678, 1137472,780521, 818593, 814910, 675413, 187442],
+  tiktok_t:[2795958,2737655,2135126,2554147,2554147,2700000,2950000,3700000],
+  tiktok:  [1714196,1800417,1816672,1905913,2246297,2632031,3197365,1440800],
+  bkk_t:   [164468, 161039, 229380, 229380, 258128, 500000, 550000, 800000],
+  bkk:     [267640, 207984, 128247, 220622, 288957, 123848, 411167, 137247],
+};
+const C={shopee:'#ff6b2b',lazada:'#1a6fe8',tiktok:'#888fa8',bkk:'#0fb86a'};
+const NAMES={shopee:'Shopee',lazada:'Lazada',tiktok:'TikTok Shop',bkk:'บุคคล'};
+const QCOLOR=['#3d8ef0','#9b6cf5','#0fb86a','#f5a623'];
+
+let view='m3', mainC;
+
+function fmt(n){return Math.round(n).toLocaleString('th-TH');}
+function fmtB(n){return '฿'+fmt(n);}
+
+function getIdxs(){
+  if(view==='all') return [0,1,2,3,4,5,6,7];
+  if(view.startsWith('m')) return [parseInt(view.slice(1))];
+  if(view==='q1') return [0,1,2];
+  if(view==='q2') return [3,4,5];
+  if(view==='q3') return [6];
+  if(view==='q4') return [];
+  return [];
+}
+
+function isFuture(idxs){return idxs.every(i=>D.total[i]===null);}
+
+function renderHdr(){
+  const idxs=getIdxs();
+  const future=isFuture(idxs);
+  const tot=future?null:idxs.filter(i=>D.total[i]!==null).reduce((a,i)=>a+D.total[i],0);
+  const tgt=idxs.reduce((a,i)=>a+D.target[i],0);
+
+  let title='';
+  if(view==='all') title='มกราคม – สิงหาคม 2569';
+  else if(view.startsWith('m')) title=MO[idxs[0]]+' 2569';
+  else if(view.startsWith('q')) title=QLAB[parseInt(view.slice(1))-1];
+
+  let badge='', cls='sh-neu';
+  if(future){
+    badge=`<span class="badge badge-future">⭐ เป้าหมาย ${fmtB(tgt)}</span>`;
+  } else if(tgt>0&&tot!==null){
+    const hit=tot>=tgt;
+    cls=hit?'sh-hit':'sh-miss';
+    badge=hit
+      ?`<span class="badge badge-hit">เกินเป้า +${fmtB(tot-tgt)}</span>`
+      :`<span class="badge badge-miss">ขาดเป้า -${fmtB(tgt-tot)} (${(tot/tgt*100).toFixed(1)}%)</span>`;
+  }
+  document.getElementById('hdr').className='summary-hd '+cls;
+  document.getElementById('hdr').innerHTML=`
+    <div>
+      <p class="sh-title">${title}</p>
+      <p class="sh-sub">${tgt?'เป้าหมายรวม '+fmtB(tgt)+' · ':''} ${tot!==null?'ยอดจริงรวม '+fmtB(tot):'ยังไม่มีข้อมูล'}</p>
+    </div>${badge}`;
+}
+
+function renderKPI(){
+  const idxs=getIdxs();
+  const future=isFuture(idxs);
+  const haveData=idxs.filter(i=>D.total[i]!==null);
+  const tot=haveData.length?haveData.reduce((a,i)=>a+D.total[i],0):null;
+  const tgt=idxs.reduce((a,i)=>a+D.target[i],0);
+  const hasTgt=tgt>0;
+
+  let html='';
+  html+=`<div class="kpi kpi-target"><p class="kpi-lbl">⭐ เป้าหมาย</p><p class="kpi-val">${hasTgt?fmtB(tgt):'—'}</p><p class="kpi-chg" style="color:var(--amber)">${view==='all'?'ม.ค.–ส.ค.':view.startsWith('m')?MOS[idxs[0]]:QLAB[parseInt(view.slice(1))-1]}</p></div>`;
+
+  if(future){
+    html+=`<div class="kpi kpi-plain"><p class="kpi-lbl">ยอดจริง</p><p class="kpi-val neu">—</p><p class="kpi-chg neu">ยังไม่มีข้อมูล</p></div>`;
+  } else if(tot!==null){
+    const hit=hasTgt&&tot>=tgt;
+    const pct=hasTgt?(tot/tgt*100).toFixed(1):null;
+    html+=`<div class="kpi kpi-plain"><p class="kpi-lbl">ยอดที่ทำได้</p><p class="kpi-val ${hit?'up':'down'}">${fmtB(tot)}</p><p class="kpi-chg ${hit?'up':'down'}">${pct?pct+'% ของเป้า':''}</p></div>`;
+    if(hasTgt){
+      const gap=Math.abs(tgt-tot);
+      html+=`<div class="kpi kpi-plain"><p class="kpi-lbl">${hit?'เกินเป้า':'ขาดเป้า'}</p><p class="kpi-val ${hit?'up':'down'}">${fmtB(gap)}</p><p class="kpi-chg ${hit?'up':'down'}">${hit?'+':'-'}${((gap/tgt)*100).toFixed(1)}%</p></div>`;
+    }
+    // MoM
+    if(view.startsWith('m')&&idxs[0]>0&&D.total[idxs[0]-1]!==null){
+      const chg=((tot-D.total[idxs[0]-1])/D.total[idxs[0]-1]*100).toFixed(1);
+      html+=`<div class="kpi kpi-plain"><p class="kpi-lbl">เติบโต MoM</p><p class="kpi-val ${chg>=0?'up':'down'}">${chg>=0?'▲':'▼'} ${Math.abs(chg)}%</p><p class="kpi-chg neu">จาก${MOS[idxs[0]-1]}</p></div>`;
+    }
+  }
+  document.getElementById('kpiGrid').innerHTML=html;
+}
+
+function renderChart(){
+  if(mainC) mainC.destroy();
+  const grid='#1e2d45', tc='#3a4d66';
+  const idxs=getIdxs();
+
+  // ดูทั้งหมด / Quarter — bar เรียงตามลำดับ
+  const labels=idxs.map(i=>MOS[i]);
+  const totals=idxs.map(i=>D.total[i]);
+  const targets=idxs.map(i=>D.target[i]);
+
+  // สีแท่ง: มีข้อมูล=ฟ้า, ไม่มี=เทาจาง
+  const bgColors=totals.map(v=>v!==null?'#3d8ef0':'rgba(61,142,240,0.15)');
+  // แสดง placeholder สูง 0 สำหรับเดือนที่ไม่มีข้อมูล
+  const displayTotals=totals.map(v=>v!==null?v:0);
+
+  const datasets=[
+    {label:'เป้าหมาย',data:targets,type:'line',
+     borderColor:'#f5a623',borderWidth:2.5,borderDash:[6,4],
+     pointBackgroundColor:targets.map(v=>v?'#f5a623':'transparent'),
+     pointBorderColor:'#0d1117',pointBorderWidth:2,
+     pointRadius:targets.map(v=>v?7:0),
+     spanGaps:true,fill:false,order:0},
+    {label:'ยอดที่ทำได้',data:displayTotals,backgroundColor:bgColors,borderRadius:5,borderSkipped:false},
+  ];
+
+  mainC=new Chart(document.getElementById('mainChart'),{
+    type:'bar',data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>{
+          if(c.datasetIndex===1&&totals[c.dataIndex]===null) return 'ยังไม่มีข้อมูล';
+          return `${c.dataset.label}: ${c.raw?fmtB(c.raw):'—'}`;
+        }}}},
+      scales:{
+        x:{ticks:{color:tc,font:{size:11},autoSkip:false},grid:{display:false}},
+        y:{ticks:{color:tc,font:{size:10},callback:v=>fmtB(v)},grid:{color:grid}}
+      }}
+  });
+}
+
+function renderPF(){
+  const idxs=getIdxs();
+  const pfs=['shopee','lazada','tiktok','bkk'];
+  const future=isFuture(idxs);
+  let html='';
+
+  if(view==='all'){
+    // Growth mode — แสดง MoM trend แต่ละแพลตฟอร์ม
+    document.getElementById('pfSec').textContent='อัตราการเติบโต MoM รายแพลตฟอร์ม (ม.ค.–ก.ค.)';
+    pfs.forEach(p=>{
+      const arr=D[p];
+      const g=arr.map((v,i)=>i===0||arr[i-1]===null||v===null?null:+((v-arr[i-1])/arr[i-1]*100).toFixed(1));
+      const vals=g.filter(v=>v!==null);
+      const avg=vals.length?+(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):null;
+      const isUp=avg>=0;
+      const col=avg===null?'var(--text3)':isUp?'var(--green)':'var(--red)';
+      const maxAbs=Math.max(...vals.map(v=>Math.abs(v)),1);
+      let barsHtml='';
+      // แสดงเฉพาะ ม.ค.–ก.ค. (0-6)
+      MOS.slice(0,7).forEach((lbl,i)=>{
+        const v=g[i];
+        if(v===null){
+          barsHtml+=`<div class="gc-bar-row"><span class="gc-bar-lbl">${lbl}</span><div class="gc-bar-track"></div><span class="gc-bar-val" style="color:var(--text3)">—</span></div>`;
+        } else {
+          const w=Math.min(Math.abs(v)/maxAbs*50,50);
+          const barHtml=v>=0
+            ?`<div class="gc-bar-pos" style="width:${w}%;background:var(--green)"></div>`
+            :`<div class="gc-bar-neg" style="width:${w}%;background:var(--red)"></div>`;
+          barsHtml+=`<div class="gc-bar-row"><span class="gc-bar-lbl">${lbl}</span><div class="gc-bar-track">${barHtml}</div><span class="gc-bar-val" style="color:${v>=0?'var(--green)':'var(--red)'}">${v>=0?'+':''}${v}%</span></div>`;
+        }
+      });
+      html+=`<div class="pf-card" style="border-left:3px solid ${C[p]}">
+        <div class="pf-header"><span class="pf-name">${NAMES[p]}</span><span style="width:8px;height:8px;border-radius:50%;background:${C[p]};display:inline-block"></span></div>
+        <p class="gc-main" style="color:${col}">${avg===null?'—':(isUp?'▲ +':'▼ ')+Math.abs(avg)+'%'}</p>
+        <p class="gc-sub">เฉลี่ย MoM · ม.ค.–ก.ค.</p>
+        <div class="gc-bars">${barsHtml}</div>
+      </div>`;
+    });
+
+  } else {
+    // Month / Quarter mode — แสดงเป้า + ยอดจริง + progress
+    const qIdx=view.startsWith('q')?parseInt(view.slice(1))-1:null;
+    document.getElementById('pfSec').textContent='แยกรายแพลตฟอร์ม'+(qIdx!==null?' — '+QLAB[qIdx]:'');
+    pfs.forEach(p=>{
+      const act_arr=D[p], tgt_arr=D[p+'_t'];
+      const act_vals=idxs.map(i=>act_arr[i]).filter(v=>v!==null);
+      const act=act_vals.length?act_vals.reduce((a,b)=>a+b,0):null;
+      const tgt=idxs.reduce((a,i)=>a+tgt_arr[i],0);
+      const pct=act!==null&&tgt?Math.min(act/tgt*100,100).toFixed(1):null;
+      const hit=act!==null&&tgt&&act>=tgt;
+      const qLbl=qIdx!==null?`<span class="q-label q${qIdx+1}">${QN[qIdx]}</span><br>`:'';
+      if(future||act===null){
+        html+=`<div class="pf-card" style="border-left:3px solid ${C[p]}">
+          <div class="pf-header"><span class="pf-name">${NAMES[p]}</span><span class="pf-pct neu">—</span></div>
+          ${qLbl}
+          <div class="pf-tgt-row"><span class="pf-tgt-badge">⭐ เป้า</span><span class="pf-tgt-val">${fmtB(tgt)}</span></div>
+          <div class="pf-act-row"><span class="pf-act-lbl">ทำได้</span><span class="pf-act-val" style="color:var(--text3)">ยังไม่มีข้อมูล</span></div>
+          <div class="prog-track"><div class="prog-bar" style="width:0%;background:${C[p]}"></div></div>
+        </div>`;
+      } else {
+        html+=`<div class="pf-card" style="border-left:3px solid ${C[p]}">
+          <div class="pf-header"><span class="pf-name">${NAMES[p]}</span><span class="pf-pct ${hit?'up':'down'}">${pct}%</span></div>
+          ${qLbl}
+          <div class="pf-tgt-row"><span class="pf-tgt-badge">⭐ เป้า</span><span class="pf-tgt-val">${fmtB(tgt)}</span></div>
+          <div class="pf-act-row"><span class="pf-act-lbl">ทำได้</span><span class="pf-act-val">${fmtB(act)}</span></div>
+          <div class="prog-track"><div class="prog-bar" style="width:${pct}%;background:${C[p]}"></div></div>
+          <p class="pf-gap ${hit?'up':'down'}">${hit?'เกิน +':'ขาด -'}${fmtB(Math.abs(act-tgt))}</p>
+        </div>`;
+      }
+    });
+  }
+  document.getElementById('pfGrid').innerHTML=html;
+}
+
+function setView(v,btn){
+  view=v;
+  document.querySelectorAll('#page-sales .fbtn').forEach(b=>b.classList.remove('active','q-active'));
+  btn.classList.add(v.startsWith('q')?'q-active':'active');
+  render();
+}
+
+function render(){renderHdr();renderKPI();renderChart();renderPF();}
+
+
+/* ══════════════════════════════════════
+   PRODUCT DASHBOARD JS
+══════════════════════════════════════ */
+const PROD = {"ม.ค.": {"tiktok": {"top10": [{"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 296853, "items": 1867}, {"name": "ไบโอนิค G-001 (100 กรัม)", "gmv": 81879, "items": 1671}, {"name": "ไบโอนิค Anti bug", "gmv": 76936, "items": 1304}, {"name": "น้ำยาล้างจาน Peach&Red Apple (455ml.)", "gmv": 61472, "items": 1921}, {"name": "ไบโอนิค (2,500 กรัม)", "gmv": 61254, "items": 166}], "low5": [{"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 60, "items": 1}, {"name": "แบคโตเซล 5001 (1000cc)", "gmv": 180, "items": 1}, {"name": "ไมคอร์ไรซอยต์ 50", "gmv": 78, "items": 2}, {"name": "สเปร์ไล่สัตว์พาหะ", "gmv": 297, "items": 3}, {"name": "EM  Powder 50g", "gmv": 236, "items": 4}]}, "shopee": {"top10": [{"name": "ไบโอนิค (1000 กรัม)", "gmv": 248000, "items": 1240}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 195570, "items": 1230}, {"name": "ไบโอนิค Anti bug", "gmv": 148503, "items": 2517}, {"name": "แบคโตเซล 3001 (1000cc)", "gmv": 143100, "items": 795}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 135450, "items": 387}], "low5": [{"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 60, "items": 1}, {"name": "ไบโอนิค ตะไคร้หอมไล่ยุง 30 ml", "gmv": 40, "items": 1}, {"name": "EM  Powder 50g", "gmv": 118, "items": 2}, {"name": "OK EM", "gmv": 417, "items": 3}, {"name": "ฟินเฟรช", "gmv": 150, "items": 3}]}, "lazada": {"top10": [{"name": "ไบโอนิค (1000 กรัม)", "gmv": 116600, "items": 583}, {"name": "ไบโอนิค (2,500 กรัม)", "gmv": 104058, "items": 282}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 61533, "items": 387}, {"name": "ไบโอนิค ไมโครแคปซูล (1 เม็ด )", "gmv": 22230, "items": 342}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 18990, "items": 422}], "low5": [{"name": "ไบโอนิค ตะไคร้หอมไล่ยุง 90 ml", "gmv": 69, "items": 1}, {"name": "ไบโอนิค แพลนโปร 100", "gmv": 60, "items": 1}, {"name": "Nanozyme1000g.", "gmv": 2580, "items": 2}, {"name": "แบคโตเซล 2001 (1000 กรัม)", "gmv": 700, "items": 2}, {"name": "แบคโตเซล 2001 5 L", "gmv": 1380, "items": 2}]}}, "ก.พ.": {"tiktok": {"top10": [{"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 248676, "items": 1564}, {"name": "สารเร่งไบโอนิค 1 (100 กรัม)", "gmv": 157620, "items": 2627}, {"name": "ไบโอนิค Anti bug", "gmv": 121658, "items": 2062}, {"name": "ไบโอนิค G-001 (100 กรัม)", "gmv": 113288, "items": 2312}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 52875, "items": 1175}], "low5": [{"name": "EM Powder 250G", "gmv": 89, "items": 1}, {"name": "ทอมแอนด์จี  (ขวด 300 กรัม)", "gmv": 95, "items": 1}, {"name": "แบคโตเซล 2001 (1000 CC)", "gmv": 180, "items": 1}, {"name": "แบคโตเซล 2001 (1000 กรัม)", "gmv": 350, "items": 1}, {"name": "แบคโตเซล 4001 (300cc)", "gmv": 60, "items": 1}]}, "shopee": {"top10": [{"name": "ไบโอนิค (1000 กรัม)", "gmv": 588400, "items": 2942}, {"name": "ไบโอนิค (2,500 กรัม)", "gmv": 347967, "items": 943}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 314661, "items": 1979}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 293300, "items": 838}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 268020, "items": 5956}], "low5": [{"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 240, "items": 4}, {"name": "แบคโตเซล 4001 L", "gmv": 0, "items": 5}, {"name": "ไบโอนิค แพลนโปร 100", "gmv": 540, "items": 9}, {"name": "Nanozyme1000g.", "gmv": 12900, "items": 10}, {"name": "OK EM", "gmv": 1668, "items": 12}]}, "lazada": {"top10": [{"name": "ไบโอนิค (2,500 กรัม)", "gmv": 109224, "items": 296}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 102714, "items": 646}, {"name": "ไบโอนิค (1000 กรัม)", "gmv": 74200, "items": 371}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 40635, "items": 903}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 25900, "items": 74}], "low5": [{"name": "แบคโตเซล 2001 5 L", "gmv": 690, "items": 1}, {"name": "ไบโอนิค ตะไคร้หอมไล่ยุง 30 ml", "gmv": 40, "items": 1}, {"name": "EM  Powder 50g", "gmv": 118, "items": 2}, {"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 120, "items": 2}, {"name": "แบคโตเซล 4001 (1000cc)", "gmv": 360, "items": 2}]}}, "มี.ค.": {"tiktok": {"top10": [{"name": "หัวเชื้อจุลินทรีย์ สูตรเข้มข้น", "gmv": 500282, "items": 1808}, {"name": "ไบโอนิค G-001", "gmv": 211605, "items": 1681}, {"name": "Antibug กำจัดแมลงหวี่", "gmv": 205744, "items": 1133}, {"name": "สารเร่งปุ๋ยหมัก ไบโอนิค-1", "gmv": 193907, "items": 1410}, {"name": "จุลินทรีย์แก้ส้วมเหม็น 2500g", "gmv": 118343, "items": 217}], "low5": [{"name": "EM  Powder 50g", "gmv": 59, "items": 1}, {"name": "แบคโตเซล 2001 (1000cc)", "gmv": 180, "items": 1}, {"name": "แบคโตเซล 4001 (300cc)", "gmv": 60, "items": 1}, {"name": "แบคโตเซล 4001 (5 L)", "gmv": 690, "items": 1}, {"name": "ไบโอนิค โกลแม็กซ์ 100กรัม", "gmv": 60, "items": 1}]}, "shopee": {"top10": [{"name": "ไบโอนิค (1000 กรัม)", "gmv": 380800, "items": 1904}, {"name": "ไบโอนิค (2,500 กรัม)", "gmv": 211437, "items": 573}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 194600, "items": 556}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 186666, "items": 1174}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 140085, "items": 3113}], "low5": [{"name": "แบคโตเซล 40015 L", "gmv": 1380, "items": 2}, {"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 180, "items": 3}, {"name": "Nanozyme1000g.", "gmv": 7740, "items": 6}, {"name": "Nanozyme100g.", "gmv": 774, "items": 6}, {"name": "EM  Powder 50g", "gmv": 413, "items": 7}]}, "lazada": {"top10": [{"name": "ไบโอนิค (1000 กรัม)", "gmv": 116600, "items": 583}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 105099, "items": 661}, {"name": "ไบโอนิค (2,500 กรัม)", "gmv": 104058, "items": 282}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 56700, "items": 162}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 41310, "items": 918}], "low5": [{"name": "ผงชีวะภาพ", "gmv": 100, "items": 2}, {"name": "แบคโตเซล 2001 5 L", "gmv": 1380, "items": 2}, {"name": "ไบโอนิค โกลแม็กซ์ 100กรัม", "gmv": 120, "items": 2}, {"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 180, "items": 3}, {"name": "OK EM", "gmv": 417, "items": 3}]}}, "เม.ย.": {"tiktok": {"top10": [{"name": "ไบโอนิค G-001", "gmv": 369015, "items": 3091}, {"name": "หัวเชื้อจุลินทรีย์ สูตรเข้มข้น", "gmv": 312329, "items": 1123}, {"name": "สารเร่งปุ๋ยหมัก ไบโอนิค-1", "gmv": 228236, "items": 1630}, {"name": "ผงไบโอนิค 1000g", "gmv": 142221, "items": 514}, {"name": "แบคโตเซล 3001 300cc", "gmv": 119242, "items": 637}], "low5": [{"name": "ไบโอนิค ตะไคร้หอมไล่ยุง 30 ml", "gmv": 40, "items": 1}, {"name": "จุลินทรีย์กำจัดกลิ่นขยะ Green (ไบโอนิค Garbage odors elimina)", "gmv": 158, "items": 2}, {"name": "2001  5 L", "gmv": 2070, "items": 3}, {"name": "EM  Powder 50g", "gmv": 177, "items": 3}, {"name": "ทอมแอนด์จี  (ขวด 300 กรัม)", "gmv": 285, "items": 3}]}, "shopee": {"top10": [{"name": "ไบโอนิค (1000 กรัม)", "gmv": 689000, "items": 3445}, {"name": "ไบโอนิค (2,500 กรัม)", "gmv": 469737, "items": 1273}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 391140, "items": 2460}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 379050, "items": 1083}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 301185, "items": 6693}], "low5": [{"name": "Nanozyme1000g.", "gmv": 2580, "items": 2}, {"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 240, "items": 4}, {"name": "แบคโตเซล 4001 5 L", "gmv": 3450, "items": 5}, {"name": "OK EM", "gmv": 2502, "items": 18}, {"name": "ไบโอนิค ตะไคร้หอมไล่ยุง 30 ml", "gmv": 880, "items": 22}]}, "lazada": {"top10": [{"name": "ไบโอนิค (2,500 กรัม)", "gmv": 108486, "items": 294}, {"name": "ไบโอนิค (1000 กรัม)", "gmv": 96600, "items": 483}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 68529, "items": 431}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 38850, "items": 111}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 28080, "items": 624}], "low5": [{"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 60, "items": 1}, {"name": "ดินจุลินทรีย์ ขนาด 2,000กรัม", "gmv": 89, "items": 1}, {"name": "สเปร์ไล่หมาแมว", "gmv": 99, "items": 1}, {"name": "แบคโตเซล 4001 (1000cc)", "gmv": 180, "items": 1}, {"name": "4001 5 L", "gmv": 1380, "items": 2}]}}, "พ.ค.": {"tiktok": {"top10": [{"name": "แบคโตเซล 3001 1000g", "gmv": 641383, "items": 2105}, {"name": "หัวเชื้อจุลินทรีย์ สูตรเข้มข้น", "gmv": 261934, "items": 938}, {"name": "ไบโอนิค G-001", "gmv": 258731, "items": 2836}, {"name": "สารเร่งปุ๋ยหมัก ไบโอนิค-1", "gmv": 147763, "items": 1058}, {"name": "ผงไบโอนิค 1000g", "gmv": 143617, "items": 544}], "low5": [{"name": "5001 5 L", "gmv": 690, "items": 1}, {"name": "Nanozyme1000g.", "gmv": 1290, "items": 1}, {"name": "แบคโตเซล 2001 (200กรัม)", "gmv": 85, "items": 1}, {"name": "ไมคอร์ไรซอยต์ 1000  กรัม", "gmv": 159, "items": 1}, {"name": "คลีนโหมด 185 กรัม", "gmv": 130, "items": 2}]}, "shopee": {"top10": [{"name": "ไบโอนิค (1000 กรัม)", "gmv": 385600, "items": 1928}, {"name": "ไบโอนิค (2,500 กรัม)", "gmv": 215127, "items": 583}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 196000, "items": 560}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 190164, "items": 1196}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 141435, "items": 3143}], "low5": [{"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 180, "items": 3}, {"name": "Nanozyme1000g.", "gmv": 7740, "items": 6}, {"name": "Nanozyme100g.", "gmv": 774, "items": 6}, {"name": "EM  Powder 50g", "gmv": 413, "items": 7}, {"name": "2001 5 L", "gmv": 6210, "items": 9}]}, "lazada": {"top10": [{"name": "ไบโอนิค (2,500 กรัม)", "gmv": 114759, "items": 311}, {"name": "ไบโอนิค (1000 กรัม)", "gmv": 94400, "items": 472}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 50403, "items": 317}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 31850, "items": 91}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 28980, "items": 644}], "low5": [{"name": "40015 L", "gmv": 690, "items": 1}, {"name": "จุลินทรีย์กำจัดกลิ่นขยะ Green (ไบโอนิค Garbage odors elimina)", "gmv": 79, "items": 1}, {"name": "สเปร์ไล่หมาแมว", "gmv": 99, "items": 1}, {"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 120, "items": 2}, {"name": "ไบโอนิค แพลนโปร 100", "gmv": 120, "items": 2}]}}, "มิ.ย.": {"tiktok": {"top10": [{"name": "ผงไบโอนิค 1000g", "gmv": 427227, "items": 1859}, {"name": "ไบโอนิค G-001", "gmv": 422902, "items": 4779}, {"name": "แบคโตเซล 3001 1000g", "gmv": 327497, "items": 1051}, {"name": "หัวเชื้อจุลินทรีย์ สูตรเข้มข้น", "gmv": 267756, "items": 951}, {"name": "Antibug กำจัดแมลงหวี่", "gmv": 121815, "items": 918}], "low5": [{"name": "แบคโตเซล 2001 (200กรัม)", "gmv": 85, "items": 1}, {"name": "ไบโอนิค C1", "gmv": 75, "items": 1}, {"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(300ml)", "gmv": 240, "items": 2}, {"name": "สารเร่งไบโอนิค 3 (100 กรัม)", "gmv": 120, "items": 2}, {"name": "สารเร่งไบโอนิค 9 (100 กรัม)", "gmv": 180, "items": 3}]}, "shopee": {"top10": [{"name": "ไบโอนิค (1000 กรัม)", "gmv": 670600, "items": 3353}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 450100, "items": 1286}, {"name": "ไบโอนิค (2,500 กรัม)", "gmv": 396675, "items": 1075}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 355206, "items": 2234}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 255330, "items": 5674}], "low5": [{"name": "ไมคอร์ไรซอยต์ 50", "gmv": 39, "items": 1}, {"name": "ไบโอนิค C1", "gmv": 225, "items": 3}, {"name": "แบคโตเซล 2001 (200กรัม)", "gmv": 340, "items": 4}, {"name": "จุลินทรีย์กำจัดกลิ่นขยะ Green (ไบโอนิค Garbage odors elimina)", "gmv": 869, "items": 11}, {"name": "ผงชีวะภาพ", "gmv": 550, "items": 11}]}, "lazada": {"top10": [{"name": "ไบโอนิค (2,500 กรัม)", "gmv": 90405, "items": 245}, {"name": "ไบโอนิค (1000 กรัม)", "gmv": 47800, "items": 239}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 40704, "items": 256}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 29400, "items": 84}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 22815, "items": 507}], "low5": [{"name": "จุลินทรีย์กำจัดกลิ่นขยะ Green (ไบโอนิค Garbage odors elimina)", "gmv": 79, "items": 1}, {"name": "ฟินเฟรช", "gmv": 50, "items": 1}, {"name": "2001 5 L", "gmv": 1380, "items": 2}, {"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 120, "items": 2}, {"name": "OK EM", "gmv": 278, "items": 2}]}}, "ก.ค.": {"tiktok": {"top10": [{"name": "ไบโอนิค G-001", "gmv": 734191, "items": 8068}, {"name": "หัวเชื้อจุลินทรีย์ สูตรเข้มข้น", "gmv": 572420, "items": 2451}, {"name": "ผงไบโอนิค 1000g", "gmv": 519277, "items": 2138}, {"name": "แบคโตเซล 3001 1000g", "gmv": 272876, "items": 786}, {"name": "จุลินทรีย์แก้ส้วมเหม็น 2500g", "gmv": 167112, "items": 406}], "low5": []}, "shopee": {"top10": [{"name": "ไบโอนิค (1000 กรัม)", "gmv": 1186200, "items": 5931}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 736647, "items": 4633}, {"name": "ไบโอนิค (2,500 กรัม)", "gmv": 706635, "items": 1915}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 671300, "items": 1918}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 328950, "items": 7310}], "low5": [{"name": "Nanozyme1000g.", "gmv": 1290, "items": 1}, {"name": "ขวดสเปรย์แบบหัวฉีด", "gmv": 0, "items": 1}, {"name": "ไบโอนิค แพลนโปร 100", "gmv": 120, "items": 2}, {"name": "แบคโตเซล 4001 5 L", "gmv": 4140, "items": 6}, {"name": "ผงชีวะภาพ", "gmv": 400, "items": 8}]}, "lazada": {"top10": [{"name": "ไบโอนิค (2,500 กรัม)", "gmv": 128043, "items": 347}, {"name": "หัวเชื้อจุลินทรีย์เข้มข้น", "gmv": 78228, "items": 492}, {"name": "ไบโอนิค (1000 กรัม)", "gmv": 53800, "items": 269}, {"name": "ไบโอนิค (200 กรัม)", "gmv": 31095, "items": 691}, {"name": "แบคโตเซล 3001 (1000กรัม)", "gmv": 30800, "items": 88}], "low5": [{"name": "แบคโตเซล 4001 5 L", "gmv": 690, "items": 1}, {"name": "แบคโตเซล 4001 (1000cc)", "gmv": 180, "items": 1}, {"name": "Nanozyme100g.", "gmv": 129, "items": 1}, {"name": "ไบโอนิค แพลนโปร 100", "gmv": 60, "items": 1}, {"name": "HOM สเปรย์กำจัดกลิ่นสัตว์(100ml)", "gmv": 60, "items": 1}]}}, "ส.ค.": {"tiktok": {"top10": [{"name": "หัวเชื้อจุลินทรีย์ สูตรเข้มข้น", "gmv": 858023, "items": 3793}, {"name": "ไบโอนิค G-001", "gmv": 161557, "items": 1475}, {"name": "ผงไบโอนิค 1000g", "gmv": 80319, "items": 344}, {"name": "แบคโตเซล 3001 1000g", "gmv": 75230, "items": 223}, {"name": "จุลินทรีย์แก้ส้วมเหม็น 2500g", "gmv": 68307, "items": 162}], "low5": []}, "shopee": {"top10": [], "low5": []}, "lazada": {"top10": [], "low5": []}}};
+
+const COMING_SOON = {top10:[],low5:[]};
+
+let pMo='มี.ค.';
+let pPF='tiktok';
+let pTab='top';
+let pBarC;
+
+function getProdData() {
+  if(PROD[pMo] && PROD[pMo][pPF] && PROD[pMo][pPF].top10 && PROD[pMo][pPF].top10.length > 0) {
+    return PROD[pMo][pPF];
+  }
+  return COMING_SOON;
+}
+
+function setPMo(m,btn) {
+  pMo=m;
+  document.querySelectorAll('#page-product .fbtn').forEach(b=>b.classList.remove('p-active','active'));
+  btn.classList.add('p-active');
+  renderProduct();
+}
+function setPPF(p,btn) {
+  pPF=p;
+  document.querySelectorAll('#page-product .filter-bar:nth-child(4) .fbtn, #page-product .filter-bar:nth-child(3) .fbtn').forEach(b=>b.classList.remove('p2-active','active'));
+  btn.classList.add('p2-active');
+  renderProduct();
+}
+function setPTab(t,btn) {
+  pTab=t;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProduct();
+}
+
+function renderProduct() {
+  const d = getProdData();
+  const rows = pTab==='top' ? d.top10 : (d.low5 || []);
+  const isTop = pTab!=='low';
+  const grid = '#1e2d45', tc = '#3a4d66';
+
+  // Platform badge & filter visibility
+  const isAllMode = pMo === 'all';
+  const pfMap = {tiktok:['TikTok Shop','pf-tiktok'],shopee:['Shopee','pf-shopee'],lazada:['Lazada','pf-lazada']};
+  const [pfName, pfClass] = pfMap[pPF] || ['—','pf-tiktok'];
+  document.getElementById('pfBadge').innerHTML = `<span class="pf-filter-badge ${pfClass}">${pfName} — ${pMo} 2569</span>`;
+
+  // Coming soon
+  if(!rows || rows.length===0) {
+    if(pBarC) pBarC.destroy();
+    document.getElementById('pTableSec').textContent = `${isTop?'Top 5 สินค้าขายดี':'5 สินค้าขายได้น้อยที่สุด'} — ${pfName} ${pMo} 2569`;
+    document.getElementById('pTableHead').innerHTML = '';
+    document.getElementById('pTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text3)">⏳ รอข้อมูล ${pfName} — จะเพิ่มเมื่อได้รับข้อมูลครบครับ</td></tr>`;
+    const ctx = document.getElementById('pBarChart').getContext('2d');
+    if(pBarC) pBarC.destroy();
+    pBarC = new Chart(ctx,{type:'bar',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false}});
+    return;
+  }
+
+  // Chart
+  if(pBarC) pBarC.destroy();
+  const displayRows = rows.slice(0, 5);
+  const labels = displayRows.map(r=>r.name.length>14?r.name.slice(0,14)+'…':r.name);
+  const vals = isTop ? displayRows.map(r=>r.gmv) : displayRows.map(r=>r.items);
+  const color = isTop ? '#3d8ef0' : '#f04458';
+  const chartLabel = isTop ? 'GMV (฿)' : 'จำนวนที่ขายได้ (ชิ้น)';
+  pBarC = new Chart(document.getElementById('pBarChart'),{
+    type:'bar',
+    data:{labels,datasets:[{label:chartLabel,data:vals,backgroundColor:color,borderRadius:4,borderSkipped:false}]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>chartLabel+': '+(isTop?'฿':'')+Math.round(c.raw).toLocaleString('th-TH')+(isTop?'':' ชิ้น')}}},
+      scales:{
+        x:{ticks:{color:tc,font:{size:10},callback:v=>isTop?'฿'+Math.round(v).toLocaleString('th-TH'):Math.round(v).toLocaleString('th-TH')},grid:{color:grid}},
+        y:{ticks:{color:'#7a8fad',font:{size:11}},grid:{display:false}}
+      }
+    }
+  });
+
+  // Table
+  const moLabel = isAllMode ? 'รวมทุกแพลตฟอร์ม ม.ค.–ส.ค. 2569' : `${pfName} ${pMo} 2569`;
+  const topLabel = isAllMode ? 'Top 10 สินค้าขายดีสุด' : 'Top 5 สินค้าขายดี';
+  const lowLabel = isAllMode ? '10 สินค้าขายได้น้อยที่สุด' : '5 สินค้าขายได้น้อยที่สุด';
+  document.getElementById('pTableSec').textContent = `${isTop ? topLabel : lowLabel} — ${moLabel}`;
+  document.getElementById('pTableHead').innerHTML = isTop
+    ? `<tr><th>#</th><th>สินค้า</th><th style="text-align:right">มูลค่ารวม (GMV)</th><th style="text-align:right">จำนวนที่ขาย</th></tr>`
+    : `<tr><th>#</th><th>สินค้า</th><th style="text-align:right">จำนวนที่ขายได้</th><th style="text-align:right">มูลค่ารวม</th></tr>`;
+
+  const maxGmv = Math.max(...displayRows.map(r=>r.gmv||0),1);
+  const maxImp = Math.max(...displayRows.map(r=>r.items||0),1);
+  const fmtB = n=>'฿'+Math.round(n).toLocaleString('th-TH');
+  const fmtN = n=>Math.round(n).toLocaleString('th-TH');
+
+  document.getElementById('pTableBody').innerHTML = displayRows.map((r,i)=>{
+    const rc = i===0?'r1':i===1?'r2':i===2?'r3':'';
+    if(isTop){
+      const bw=Math.round(r.gmv/maxGmv*100);
+      return `<tr>
+        <td class="rank-cell ${rc}">#${i+1}</td>
+        <td class="name-cell">${r.name}</td>
+        <td class="num-cell"><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${bw}%;background:var(--accent)"></div></div><span class="gmv-cell">${fmtB(r.gmv)}</span></div></td>
+        <td class="num-cell items-cell">${fmtN(r.items)} ชิ้น</td>
+      </tr>`;
+    } else {
+      const bw=Math.round(r.impressions/maxImp*100);
+      return `<tr>
+        <td class="rank-cell ${rc}">#${i+1}</td>
+        <td class="name-cell">${r.name}</td>
+        <td class="num-cell" style="color:var(--red)">${fmtN(r.items)} ชิ้น</td>
+        <td class="num-cell gmv-cell">${fmtB(r.gmv)}</td>
+      </tr>`;
+    }
+  }).join('');
+}
+
+/* ── INIT ── */
+render(); // init sales dashboard
+
+
+/* AFFILIATE JS */
+
+const AFF_DATA = {"พ.ค.": {"summary": {"total_creators": 427, "total_lives": 107, "total_videos": 702, "total_gmv": 2001957, "total_commission": 131755}, "top10": [{"name": "yuwarech", "gmv": 361736, "gmv_live": 0, "gmv_vid": 361736, "orders": 1167, "items": 1207, "aov": 310, "lives": 0, "videos": 7, "commission": 22546, "roi": 16.04, "url": "https://www.tiktok.com/@yuwarech"}, {"name": "kasetpingkyo", "gmv": 332398, "gmv_live": 0, "gmv_vid": 331905, "orders": 2375, "items": 2786, "aov": 140, "lives": 0, "videos": 71, "commission": 21982, "roi": 15.12, "url": "https://www.tiktok.com/@kasetpingkyo"}, {"name": "pattarann22", "gmv": 218512, "gmv_live": 0, "gmv_vid": 218292, "orders": 1443, "items": 1549, "aov": 151, "lives": 0, "videos": 30, "commission": 11550, "roi": 18.92, "url": "https://www.tiktok.com/@pattarann22"}, {"name": "boonlonghome888", "gmv": 106220, "gmv_live": 91480, "gmv_vid": 14740, "orders": 360, "items": 513, "aov": 295, "lives": 89, "videos": 31, "commission": 11626, "roi": 9.14, "url": "https://www.tiktok.com/@boonlonghome888"}, {"name": "yakor_01", "gmv": 97796, "gmv_live": 0, "gmv_vid": 97796, "orders": 296, "items": 319, "aov": 330, "lives": 0, "videos": 16, "commission": 6489, "roi": 15.07, "url": "https://www.tiktok.com/@yakor_01"}, {"name": "chainee_koryorsor", "gmv": 70585, "gmv_live": 0, "gmv_vid": 70585, "orders": 258, "items": 296, "aov": 274, "lives": 0, "videos": 1, "commission": 4313, "roi": 16.37, "url": "https://www.tiktok.com/@chainee_koryorsor"}, {"name": "nuchy_love_shop", "gmv": 63862, "gmv_live": 0, "gmv_vid": 63862, "orders": 377, "items": 440, "aov": 169, "lives": 0, "videos": 17, "commission": 4437, "roi": 14.39, "url": "https://www.tiktok.com/@nuchy_love_shop"}, {"name": "lungwaen.homegarden", "gmv": 59471, "gmv_live": 0, "gmv_vid": 59471, "orders": 192, "items": 202, "aov": 310, "lives": 0, "videos": 59, "commission": 3742, "roi": 15.89, "url": "https://www.tiktok.com/@lungwaen.homegarden"}, {"name": "kenveerapon", "gmv": 53606, "gmv_live": 0, "gmv_vid": 53606, "orders": 163, "items": 176, "aov": 329, "lives": 0, "videos": 0, "commission": 3045, "roi": 17.6, "url": "https://www.tiktok.com/@kenveerapon"}, {"name": "lalita_690", "gmv": 53455, "gmv_live": 0, "gmv_vid": 53455, "orders": 479, "items": 507, "aov": 112, "lives": 0, "videos": 3, "commission": 2598, "roi": 20.57, "url": "https://www.tiktok.com/@lalita_690"}]}, "มิ.ย.": {"summary": {"total_creators": 601, "total_lives": 88, "total_videos": 903, "total_gmv": 2343481, "total_commission": 190429}, "top10": [{"name": "kasetpingkyo", "gmv": 451618, "gmv_live": 0, "gmv_vid": 451323, "orders": 3718, "items": 4321, "aov": 121, "lives": 0, "videos": 84, "commission": 32810, "roi": 13.76, "url": "https://www.tiktok.com/@kasetpingkyo"}, {"name": "pattarann22", "gmv": 239395, "gmv_live": 0, "gmv_vid": 239395, "orders": 1960, "items": 2129, "aov": 122, "lives": 0, "videos": 27, "commission": 13956, "roi": 17.15, "url": "https://www.tiktok.com/@pattarann22"}, {"name": "ben_ben798", "gmv": 224645, "gmv_live": 0, "gmv_vid": 224645, "orders": 1043, "items": 1055, "aov": 215, "lives": 0, "videos": 1, "commission": 11907, "roi": 18.87, "url": "https://www.tiktok.com/@ben_ben798"}, {"name": "yuwarech", "gmv": 177602, "gmv_live": 0, "gmv_vid": 177422, "orders": 585, "items": 643, "aov": 304, "lives": 0, "videos": 4, "commission": 22159, "roi": 8.01, "url": "https://www.tiktok.com/@yuwarech"}, {"name": "boonlonghome888", "gmv": 110429, "gmv_live": 88867, "gmv_vid": 21562, "orders": 388, "items": 474, "aov": 285, "lives": 63, "videos": 27, "commission": 17364, "roi": 6.36, "url": "https://www.tiktok.com/@boonlonghome888"}, {"name": "lalita_690", "gmv": 94330, "gmv_live": 0, "gmv_vid": 94330, "orders": 905, "items": 998, "aov": 104, "lives": 0, "videos": 3, "commission": 4734, "roi": 19.93, "url": "https://www.tiktok.com/@lalita_690"}, {"name": "yakor_01", "gmv": 92327, "gmv_live": 0, "gmv_vid": 92327, "orders": 273, "items": 295, "aov": 338, "lives": 0, "videos": 8, "commission": 12079, "roi": 7.64, "url": "https://www.tiktok.com/@yakor_01"}, {"name": "lungwaen.homegarden", "gmv": 63000, "gmv_live": 0, "gmv_vid": 63000, "orders": 223, "items": 242, "aov": 283, "lives": 0, "videos": 41, "commission": 4158, "roi": 15.15, "url": "https://www.tiktok.com/@lungwaen.homegarden"}, {"name": "maewinship", "gmv": 60879, "gmv_live": 0, "gmv_vid": 60879, "orders": 131, "items": 137, "aov": 465, "lives": 0, "videos": 14, "commission": 4243, "roi": 14.35, "url": "https://www.tiktok.com/@maewinship"}, {"name": "mumiare", "gmv": 57872, "gmv_live": 0, "gmv_vid": 57872, "orders": 205, "items": 211, "aov": 282, "lives": 0, "videos": 1, "commission": 5528, "roi": 10.47, "url": "https://www.tiktok.com/@mumiare"}]}, "ก.ค.": {"summary": {"total_creators": 632, "total_lives": 223, "total_videos": 1145, "total_gmv": 2862042, "total_commission": 213697}, "top10": [{"name": "kasetpingkyo", "gmv": 690215, "gmv_live": 0, "gmv_vid": 689864, "orders": 6274, "items": 6815, "aov": 110, "lives": 0, "videos": 69, "commission": 47292, "roi": 14.59, "url": "https://www.tiktok.com/@kasetpingkyo"}, {"name": "maebandaily", "gmv": 287946, "gmv_live": 0, "gmv_vid": 287946, "orders": 1234, "items": 1280, "aov": 233, "lives": 0, "videos": 6, "commission": 19614, "roi": 14.68, "url": "https://www.tiktok.com/@maebandaily"}, {"name": "ben_ben798", "gmv": 239583, "gmv_live": 0, "gmv_vid": 239403, "orders": 986, "items": 997, "aov": 243, "lives": 0, "videos": 4, "commission": 13381, "roi": 17.91, "url": "https://www.tiktok.com/@ben_ben798"}, {"name": "yuwarech", "gmv": 181018, "gmv_live": 0, "gmv_vid": 180669, "orders": 560, "items": 602, "aov": 323, "lives": 0, "videos": 1, "commission": 20888, "roi": 8.67, "url": "https://www.tiktok.com/@yuwarech"}, {"name": "pattarann22", "gmv": 178648, "gmv_live": 0, "gmv_vid": 178648, "orders": 1473, "items": 1553, "aov": 121, "lives": 0, "videos": 27, "commission": 11653, "roi": 15.33, "url": "https://www.tiktok.com/@pattarann22"}, {"name": "lalita_690", "gmv": 107350, "gmv_live": 0, "gmv_vid": 107350, "orders": 1063, "items": 1110, "aov": 101, "lives": 0, "videos": 3, "commission": 5227, "roi": 20.54, "url": "https://www.tiktok.com/@lalita_690"}, {"name": "single_nee", "gmv": 79156, "gmv_live": 0, "gmv_vid": 79156, "orders": 349, "items": 360, "aov": 227, "lives": 0, "videos": 4, "commission": 3940, "roi": 20.09, "url": "https://www.tiktok.com/@single_nee"}, {"name": "boonlonghome888", "gmv": 78865, "gmv_live": 58917, "gmv_vid": 19947, "orders": 274, "items": 336, "aov": 288, "lives": 49, "videos": 16, "commission": 12036, "roi": 6.55, "url": "https://www.tiktok.com/@boonlonghome888"}, {"name": "maewinship", "gmv": 64028, "gmv_live": 0, "gmv_vid": 64028, "orders": 156, "items": 161, "aov": 410, "lives": 0, "videos": 18, "commission": 4641, "roi": 13.8, "url": "https://www.tiktok.com/@maewinship"}, {"name": "user6679367188258", "gmv": 54708, "gmv_live": 0, "gmv_vid": 54708, "orders": 276, "items": 299, "aov": 198, "lives": 0, "videos": 98, "commission": 4613, "roi": 11.86, "url": "https://www.tiktok.com/@user6679367188258"}]}, "ส.ค.": {"summary": {"total_creators": 229, "total_lives": 40, "total_videos": 195, "total_gmv": 1079044, "total_commission": 61276}, "top10": [{"name": "single_nee", "gmv": 588846, "gmv_live": 23103, "gmv_vid": 564984, "orders": 2505, "items": 2585, "aov": 235, "lives": 4, "videos": 5, "commission": 29305, "roi": 20.09, "url": "https://www.tiktok.com/@single_nee"}, {"name": "kasetpingkyo", "gmv": 108103, "gmv_live": 0, "gmv_vid": 108103, "orders": 746, "items": 781, "aov": 145, "lives": 0, "videos": 8, "commission": 7441, "roi": 14.53, "url": "https://www.tiktok.com/@kasetpingkyo"}, {"name": "maebandaily", "gmv": 39014, "gmv_live": 0, "gmv_vid": 39014, "orders": 177, "items": 184, "aov": 220, "lives": 0, "videos": 0, "commission": 2043, "roi": 19.1, "url": "https://www.tiktok.com/@maebandaily"}, {"name": "yuwarech", "gmv": 36344, "gmv_live": 0, "gmv_vid": 36344, "orders": 104, "items": 113, "aov": 349, "lives": 0, "videos": 1, "commission": 4322, "roi": 8.41, "url": "https://www.tiktok.com/@yuwarech"}, {"name": "pattarann22", "gmv": 28959, "gmv_live": 0, "gmv_vid": 28959, "orders": 236, "items": 249, "aov": 123, "lives": 0, "videos": 3, "commission": 1714, "roi": 16.9, "url": "https://www.tiktok.com/@pattarann22"}, {"name": "lalita_690", "gmv": 28821, "gmv_live": 0, "gmv_vid": 28821, "orders": 286, "items": 301, "aov": 101, "lives": 0, "videos": 1, "commission": 1360, "roi": 21.2, "url": "https://www.tiktok.com/@lalita_690"}, {"name": "baansuantamgamlang", "gmv": 20303, "gmv_live": 0, "gmv_vid": 20108, "orders": 181, "items": 184, "aov": 112, "lives": 0, "videos": 5, "commission": 1159, "roi": 17.51, "url": "https://www.tiktok.com/@baansuantamgamlang"}, {"name": "ben_ben798", "gmv": 16400, "gmv_live": 0, "gmv_vid": 16400, "orders": 73, "items": 75, "aov": 225, "lives": 0, "videos": 0, "commission": 974, "roi": 16.84, "url": "https://www.tiktok.com/@ben_ben798"}, {"name": "maewinship", "gmv": 15480, "gmv_live": 0, "gmv_vid": 15480, "orders": 33, "items": 36, "aov": 469, "lives": 0, "videos": 5, "commission": 978, "roi": 15.82, "url": "https://www.tiktok.com/@maewinship"}, {"name": "yakor_01", "gmv": 14550, "gmv_live": 0, "gmv_vid": 14550, "orders": 34, "items": 44, "aov": 428, "lives": 0, "videos": 2, "commission": 1757, "roi": 8.28, "url": "https://www.tiktok.com/@yakor_01"}]}};
+
+const MO_LABEL = {'พ.ค.':'พฤษภาคม 2569','มิ.ย.':'มิถุนายน 2569','ก.ค.':'กรกฎาคม 2569','ส.ค.':'สิงหาคม 2569 (1–5 ส.ค.)'};
+let affMo = 'พ.ค.';
+let affTrendC;
+
+function affFmt(n){return Math.round(n).toLocaleString('th-TH');}
+function affFmtB(n){return '฿'+affFmt(n);}
+
+function renderAffKPI(){
+  const s = AFF_DATA[affMo].summary;
+  const isSaug = affMo === 'ส.ค.';
+  document.getElementById('affSummaryTitle').textContent = `ภาพรวม Affiliate — ${MO_LABEL[affMo]}`;
+  document.getElementById('affTopTitle').textContent = `Top 10 Creator ขายดี — ${MO_LABEL[affMo]}`;
+  document.getElementById('affGrowthAlert').style.display = isSaug ? '' : 'none';
+
+  document.getElementById('affKpiGrid').innerHTML = `
+    <div class="kpi ${isSaug?'kpi-highlight':''}"><p class="kpi-lbl">Creators ที่ทำยอด</p><p class="kpi-val">${affFmt(s.total_creators)}</p><p class="kpi-sub">คน</p></div>
+    <div class="kpi ${isSaug?'kpi-highlight':''}"><p class="kpi-lbl">GMV รวม Affiliate</p><p class="kpi-val">${affFmtB(s.total_gmv)}</p><p class="kpi-sub">จาก Creator ทั้งหมด</p></div>
+    <div class="kpi"><p class="kpi-lbl">&#x1F4F9; Video</p><p class="kpi-val">${affFmt(s.total_videos)}</p><p class="kpi-sub">คลิป</p></div>
+    <div class="kpi"><p class="kpi-lbl">&#x1F4E1; Live</p><p class="kpi-val">${affFmt(s.total_lives)}</p><p class="kpi-sub">ครั้ง</p></div>
+    <div class="kpi"><p class="kpi-lbl">Commission รวม</p><p class="kpi-val" style="color:var(--amber)">${affFmtB(s.total_commission)}</p><p class="kpi-sub">ค่าคอมทั้งหมด</p></div>
+  `;
+}
+
+function renderAffTable(){
+  const creators = AFF_DATA[affMo].top10;
+  const rows = creators.map((c,i) => {
+    const rc = i===0?'r1':i===1?'r2':i===2?'r3':'';
+    const roi = c.roi ? c.roi : '—';
+    const roiClass = c.roi && c.roi >= 15 ? 'roi-hi' : 'roi-mid';
+    const hasLive = c.gmv_live > 0;
+    const hasVid  = c.gmv_vid  > 0;
+    const typeBadge = (hasLive?`<span class="type-badge bl">Live</span>`:'')+(hasVid?`<span class="type-badge bv">Video</span>`:'');
+    return `<tr>
+      <td class="rank-cell ${rc}">#${i+1}</td>
+      <td>
+        <span class="creator-name">@${c.name}</span>
+        <a class="creator-link" href="${c.url}" target="_blank">↗ TikTok</a>
+      </td>
+      <td class="num-r gmv-val">${affFmtB(c.gmv)}</td>
+      <td class="num-r">${affFmt(c.orders)}</td>
+      <td class="num-r comm-val">${affFmtB(c.commission)}</td>
+      <td class="num-r"><span class="roi-badge ${roiClass}">${roi}x</span></td>
+      <td>${typeBadge}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('affCrBody').innerHTML = rows;
+}
+
+function renderAffTrend(){
+  if(affTrendC) affTrendC.destroy();
+  const months = ['พ.ค.','มิ.ย.','ก.ค.','ส.ค.'];
+  const labels = ['พ.ค.','มิ.ย.','ก.ค.','ส.ค.*'];
+  const gmvData  = months.map(m=>AFF_DATA[m].summary.total_gmv);
+  const crData   = months.map(m=>AFF_DATA[m].summary.total_creators);
+
+  affTrendC = new Chart(document.getElementById('affTrendChart'),{
+    type:'bar',
+    data:{labels, datasets:[
+      {label:'GMV (฿)',data:gmvData,backgroundColor:months.map(m=>m===affMo?'#f5a623':'#3d8ef0'),borderRadius:5,borderSkipped:false,order:1},
+      {label:'Creators',data:crData,type:'line',borderColor:'#0fb86a',backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:'#0fb86a',pointRadius:5,yAxisID:'y2',order:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'top',labels:{color:'#7a8fad',font:{size:11},boxWidth:10,padding:12}},
+        tooltip:{callbacks:{label:c=>c.datasetIndex===0?`GMV: ${affFmtB(c.raw)}`:`Creators: ${c.raw} คน`}}},
+      scales:{
+        x:{ticks:{color:'#3a4d66',font:{size:12}},grid:{display:false}},
+        y:{ticks:{color:'#3a4d66',font:{size:10},callback:v=>'฿'+(v/1000).toFixed(0)+'K'},grid:{color:'#1e2d45'}},
+        y2:{position:'right',ticks:{color:'#0fb86a',font:{size:10}},grid:{display:false}}
+      }}
+  });
+}
+
+function setAffMo(mo,btn){
+  affMo=mo;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAffKPI();
+  renderAffTable();
+  renderAffTrend();
+}
+
+renderAffKPI();
+renderAffTable();
+renderAffTrend();
+
+</script>
+</body>
+</html>

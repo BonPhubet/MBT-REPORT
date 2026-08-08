@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ปัญหาและแผนแก้ไข — Microbiotecthailand</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060910;--bg2:#0d1117;--bg3:#161b27;
+  --border:#1e2d45;--text:#e8eef8;--text2:#7a8fad;--text3:#3a4d66;
+  --accent:#3d8ef0;--green:#0fb86a;--red:#f04458;--amber:#f5a623;--orange:#f07340;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai','Inter',sans-serif;background:var(--bg);color:var(--text);padding:1.5rem 1rem;font-size:14px}
+.container{max-width:960px;margin:0 auto}
+.header{background:linear-gradient(135deg,#0d1117,#111827);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.brand{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.h-title{font-size:20px;font-weight:700;color:var(--text)}
+.h-sub{font-size:12px;color:var(--text2);margin-top:4px}
+.sec{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin:1.75rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{border-radius:var(--radius);padding:1rem 1.125rem;background:var(--bg2);border:1px solid var(--border)}
+.kpi-red{background:rgba(240,68,88,.06);border:1.5px solid rgba(240,68,88,.3)}
+.kpi-green{background:rgba(15,184,106,.06);border:1.5px solid rgba(15,184,106,.3)}
+.kpi-amber{background:rgba(245,166,35,.06);border:1.5px solid rgba(245,166,35,.3)}
+.kpi-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:7px}
+.kpi-red .kpi-lbl{color:var(--red)}
+.kpi-green .kpi-lbl{color:var(--green)}
+.kpi-amber .kpi-lbl{color:var(--amber)}
+.kpi-val{font-size:22px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--text3)}
+.cause-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem}
+.cause-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;position:relative;overflow:hidden}
+.cause-num{font-size:48px;font-weight:900;position:absolute;right:12px;top:4px;line-height:1;opacity:.07}
+.cause-icon{font-size:24px;margin-bottom:10px}
+.cause-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px}
+.cause-desc{font-size:12px;color:var(--text2);line-height:1.75}
+.cause-stat{display:inline-block;margin-top:10px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:rgba(240,68,88,.1);color:var(--red);border:.5px solid rgba(240,68,88,.25)}
+.timeline{display:flex;flex-direction:column;gap:0;margin-bottom:1.25rem;position:relative}
+.timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{display:flex;gap:16px;position:relative;padding-bottom:20px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;z-index:1}
+.tl-red{background:rgba(240,68,88,.15);border:2px solid var(--red)}
+.tl-amber{background:rgba(245,166,35,.12);border:2px solid var(--amber)}
+.tl-green{background:rgba(15,184,106,.12);border:2px solid var(--green)}
+.tl-content{flex:1;padding-top:6px}
+.tl-date{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px}
+.tl-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px}
+.tl-desc{font-size:12px;color:var(--text2);line-height:1.75}
+.fix-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:1.25rem}
+.fix-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.fix-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fix-icon{font-size:20px}
+.fix-title{font-size:13px;font-weight:700;color:var(--text)}
+.fix-badge{margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.f-done{background:rgba(15,184,106,.1);color:var(--green);border:.5px solid rgba(15,184,106,.25)}
+.f-doing{background:rgba(245,166,35,.1);color:var(--amber);border:.5px solid rgba(245,166,35,.2)}
+.fix-desc{font-size:12px;color:var(--text2);line-height:1.75}
+.fix-steps{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+.fix-step{font-size:11px;color:var(--text2);padding-left:14px;position:relative}
+.fix-step::before{content:'›';position:absolute;left:0;color:var(--accent);font-weight:700}
+.picking-flow{display:flex;align-items:center;gap:0;margin:12px 0}
+.pf-box{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.875rem 1rem;text-align:center}
+.pf-num{font-size:22px;font-weight:700;margin-bottom:4px}
+.pf-role{font-size:12px;font-weight:700;color:var(--text)}
+.pf-desc{font-size:10px;color:var(--text3);margin-top:3px}
+.pf-arrow{font-size:20px;color:var(--text3);padding:0 8px;flex-shrink:0}
+.daily-flow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.df-step{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--text2);text-align:center;flex:1;min-width:100px}
+.df-arrow{font-size:16px;color:var(--text3);align-self:center;flex-shrink:0}
+.sum-box{background:rgba(15,184,106,.04);border:1px solid rgba(15,184,106,.18);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.25rem}
+.footer{text-align:center;font-size:11px;color:var(--text3);padding-top:1rem;border-top:1px solid var(--border);margin-top:1.5rem}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;margin-bottom:1.25rem;font-family:inherit}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:600px){.cause-grid{grid-template-columns:1fr}.fix-grid{grid-template-columns:1fr}.picking-flow{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a class="back-btn" href="sales_dashboard_all_platforms.html">&#8592; กลับ Dashboard หลัก</a>
+
+<div class="header">
+  <div>
+    <p class="brand">Microbiotecthailand · ทุกแพลตฟอร์ม</p>
+    <p class="h-title">&#x1F527; ปัญหาและแผนแก้ไข</p>
+    <p class="h-sub">Late Delivery Rate (LDR) · สต็อกสินค้า · Human Error</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;text-align:right">
+    <span style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(15,184,106,.12);border:1px solid rgba(15,184,106,.3);color:#0fb86a">&#x2705; อุทธรณ์ผ่านแล้ว</span>
+    <span style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);color:#f5a623">&#x1F504; กำลังดำเนินการ</span>
+  </div>
+</div>
+
+<p class="sec">ตัวเลขสำคัญ</p>
+<div class="kpi-grid">
+  <div class="kpi kpi-red"><p class="kpi-lbl">LDR ที่เกิดขึ้น</p><p class="kpi-val" style="color:var(--red)">15.6%</p><p class="kpi-sub">เกณฑ์ TikTok ≤ 4%</p></div>
+  <div class="kpi kpi-green"><p class="kpi-lbl">ผลอุทธรณ์</p><p class="kpi-val" style="color:var(--green)">ผ่าน &#x2713;</p><p class="kpi-sub">ไม่โดนบทลงโทษ</p></div>
+  <div class="kpi kpi-red"><p class="kpi-lbl">Human Error</p><p class="kpi-val" style="color:var(--red)">~200</p><p class="kpi-sub">Orders ตก 1 Slot</p></div>
+  <div class="kpi kpi-amber"><p class="kpi-lbl">สต็อกขาด</p><p class="kpi-val" style="color:var(--amber)">300 ลัง</p><p class="kpi-sub">ต้องการ vs มี 120 ลัง</p></div>
+  <div class="kpi kpi-amber"><p class="kpi-lbl">Peak ออเดอร์</p><p class="kpi-val" style="color:var(--amber)">3,885</p><p class="kpi-sub">ออเดอร์ในวันเดียว</p></div>
+</div>
+
+<p class="sec">3 สาเหตุที่ทำให้ LDR พุ่งเป็น 15.6%</p>
+<div class="cause-grid">
+  <div class="cause-card" style="border-left:3px solid var(--red)">
+    <div class="cause-num" style="color:var(--red)">1</div>
+    <div class="cause-icon">&#x1F4E6;</div>
+    <p class="cause-title">สินค้าไม่เพียงพอ</p>
+    <p class="cause-desc">คลิปรีวิวหัวเชื้อจุลินทรีย์ไวรอล <strong style="color:var(--text)">1 ล้านวิว</strong> กะทันหัน ทำให้ยอดออเดอร์พุ่งเกินกว่าที่เตรียมไว้ โรงงานมีสต็อกแค่ 120 ลัง จากที่ต้องการ 300 ลัง</p>
+    <span class="cause-stat">สต็อกขาด 60%</span>
+  </div>
+  <div class="cause-card" style="border-left:3px solid var(--orange)">
+    <div class="cause-num" style="color:var(--orange)">2</div>
+    <div class="cause-icon">&#x26A1;</div>
+    <p class="cause-title">แพ็กสินค้าไม่ทัน</p>
+    <p class="cause-desc">ยอดออเดอร์โตต่อเนื่องทุกเดือน จนถึง ก.ค. ที่โตสูงสุด ทีม Pack รับไม่ทัน มีออเดอร์ค้าง <strong style="color:var(--text)">1,700 ออเดอร์</strong> จากทั้งหมด 4,365 ออเดอร์ในวันเดียว</p>
+    <span class="cause-stat">ออเดอร์ค้าง 39%</span>
+  </div>
+  <div class="cause-card" style="border-left:3px solid var(--amber)">
+    <div class="cause-num" style="color:var(--amber)">3</div>
+    <div class="cause-icon">&#x1F5A8;</div>
+    <p class="cause-title">Human Error</p>
+    <p class="cause-desc">ระหว่างงานหนัก เกิดการลืม Print Order ไป 1 Slot ประมาณ <strong style="color:var(--text)">150-200 ออเดอร์</strong> เนื่องจากคอมค้าง Tab หล่น ทำให้ออเดอร์กลุ่มนั้นไม่ถูกแพ็กตรงเวลา</p>
+    <span class="cause-stat">~200 orders ตก</span>
+  </div>
+</div>
+
+<p class="sec">Timeline — ลำดับเหตุการณ์</p>
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-dot tl-red">&#x1F4C8;</div>
+    <div class="tl-content">
+      <p class="tl-date">ปลาย ก.ค. 2569</p>
+      <p class="tl-title">คลิปไวรอล — ยอดพุ่งกะทันหัน</p>
+      <p class="tl-desc">Creator รีวิวหัวเชื้อจุลินทรีย์ได้ 1 ล้านวิว ยอดออเดอร์พุ่งสูงเกินกว่าที่ทีมเตรียมรับไว้ ฝ่ายผลิตแจ้งว่าต้องการสต็อก 300 ลัง แต่มีอยู่เพียง 120 ลัง</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot tl-red">&#x1F6A8;</div>
+    <div class="tl-content">
+      <p class="tl-date">1 ส.ค. 2569</p>
+      <p class="tl-title">สินค้าขาด — ออเดอร์ค้างสะสม</p>
+      <p class="tl-desc">หัวเชื้อเข้มข้นสต็อกหมด ออเดอร์ Pre-order เริ่มสะสม ยอดวันที่ 1-2 ส.ค. รวมกันกว่า 3,193 orders ทีม Pack รับไม่ทัน</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot tl-red">&#x1F5A8;</div>
+    <div class="tl-content">
+      <p class="tl-date">3–5 ส.ค. 2569</p>
+      <p class="tl-title">Human Error — Print Order ตก 1 Slot</p>
+      <p class="tl-desc">คอมค้างทำให้ Tab Order หล่น ออเดอร์ ~200 รายการไม่ได้รับการ Print ใบปะหน้า LDR สะสมพุ่งขึ้นเป็น 15.6%</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot tl-amber">&#x1F4DD;</div>
+    <div class="tl-content">
+      <p class="tl-date">5–7 ส.ค. 2569</p>
+      <p class="tl-title">ยื่นอุทธรณ์กับ TikTok</p>
+      <p class="tl-desc">รวบรวมหลักฐาน: ทะเบียนรถขนส่ง, ใบเซ็นรับสินค้า, บันทึกเวลาแพ็ก ยื่นอุทธรณ์พร้อมชี้แจงสาเหตุทุกจุด</p>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot tl-green">&#x2705;</div>
+    <div class="tl-content">
+      <p class="tl-date">8 ส.ค. 2569</p>
+      <p class="tl-title">อุทธรณ์ผ่าน — ไม่โดนบทลงโทษ</p>
+      <p class="tl-desc">TikTok ยอมรับการอุทธรณ์ ไม่มีการระงับร้านหรือลดสิทธิ์ ทีมเริ่มใช้ระบบ Picking List ใหม่ทันที</p>
+    </div>
+  </div>
+</div>
+
+<p class="sec">แผนแก้ไข — ดำเนินการแล้วและกำลังดำเนินการ</p>
+<div class="fix-grid">
+  <div class="fix-card" style="border-left:3px solid var(--green)">
+    <div class="fix-header">
+      <span class="fix-icon">&#x1F4CB;</span>
+      <p class="fix-title">ระบบ Picking List + ลายเซ็น 3 ฝ่าย</p>
+      <span class="fix-badge f-done">&#x2705; ใช้งานแล้ว</span>
+    </div>
+    <p class="fix-desc">ป้องกัน Human Error ไม่ให้เกิดซ้ำ ทุกออเดอร์ต้องผ่านการตรวจสอบและลงนาม 3 ฝ่าย ก่อนส่งออก</p>
+    <div class="picking-flow">
+      <div class="pf-box"><p class="pf-num" style="color:var(--accent)">1</p><p class="pf-role">Admin</p><p class="pf-desc">ตรวจ Order ตรงกับระบบ</p></div>
+      <span class="pf-arrow">&#x2192;</span>
+      <div class="pf-box"><p class="pf-num" style="color:var(--orange)">2</p><p class="pf-role">Team Pack</p><p class="pf-desc">ตรวจจำนวนพัสดุตรงกัน</p></div>
+      <span class="pf-arrow">&#x2192;</span>
+      <div class="pf-box"><p class="pf-num" style="color:var(--amber)">3</p><p class="pf-role">ขนส่ง</p><p class="pf-desc">เซ็นรับ + ทะเบียนรถ</p></div>
+    </div>
+  </div>
+  <div class="fix-card" style="border-left:3px solid var(--green)">
+    <div class="fix-header">
+      <span class="fix-icon">&#x23F3;</span>
+      <p class="fix-title">เปิดฟีเจอร์ Pre-order TikTok Shop</p>
+      <span class="fix-badge f-done">&#x2705; ดำเนินการแล้ว</span>
+    </div>
+    <p class="fix-desc">แทนที่จะปิดสินค้าเมื่อสต็อกหมด เปิด Pre-order ให้ลูกค้าจองรอรับสินค้าได้ ยังสร้างยอดขายต่อเนื่องและไม่กระทบ LDR</p>
+    <div class="fix-steps">
+      <p class="fix-step">ยืดเวลาจัดส่งได้ 3–15 วัน</p>
+      <p class="fix-step">ค่าธรรมเนียมเพิ่ม 2.14%/ชิ้น = ฿4.28 (หัวเชื้อ ฿200)</p>
+      <p class="fix-step">Pre-order ที่ส่งทันไม่กระทบ FDR/NDDR</p>
+    </div>
+  </div>
+  <div class="fix-card" style="border-left:3px solid var(--amber)">
+    <div class="fix-header">
+      <span class="fix-icon">&#x1F916;</span>
+      <p class="fix-title">AI Stock Alert — Moving Avg 3 วัน</p>
+      <span class="fix-badge f-doing">&#x1F504; กำลังดำเนินการ</span>
+    </div>
+    <p class="fix-desc">คาดการณ์ยอดสินค้าที่ต้องเตรียมล่วงหน้า ก่อนสต็อกหมด โดยใช้ค่าเฉลี่ย 3 วันย้อนหลัง</p>
+    <div class="fix-steps">
+      <p class="fix-step">สูตร: (วันนี้ + เมื่อวาน + 2 วันก่อน) ÷ 3</p>
+      <p class="fix-step">แม่นยำ ~85-90% ในภาวะปกติ</p>
+      <p class="fix-step">แจ้งเตือนเมื่อสต็อกเหลือน้อยกว่า Forecast 3 วัน</p>
+    </div>
+  </div>
+  <div class="fix-card" style="border-left:3px solid var(--amber)">
+    <div class="fix-header">
+      <span class="fix-icon">&#x1F4CA;</span>
+      <p class="fix-title">Daily Report ทุกเช้า</p>
+      <span class="fix-badge f-doing">&#x1F504; กำลังดำเนินการ</span>
+    </div>
+    <p class="fix-desc">ส่งรายงานยอดคำสั่งซื้อของเมื่อวันให้ทีมทุกเช้า แยกรายสินค้า แยกรายแพลตฟอร์ม พร้อม Forecast ล่วงหน้า 3 วัน</p>
+    <div class="daily-flow">
+      <div class="df-step">&#x1F4E5; ดึงข้อมูล<br>ออเดอร์เมื่อวาน</div>
+      <span class="df-arrow">&#x2192;</span>
+      <div class="df-step">&#x1F916; AI<br>คำนวณ Forecast</div>
+      <span class="df-arrow">&#x2192;</span>
+      <div class="df-step">&#x26A0; Stock Alert<br>สินค้าใกล้หมด</div>
+      <span class="df-arrow">&#x2192;</span>
+      <div class="df-step">&#x1F4E8; ส่งทีม<br>ทุกเช้า</div>
+    </div>
+  </div>
+</div>
+
+<div class="sum-box">
+  <p style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px">&#x1F4CC; สรุปสถานะปัจจุบัน</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px;color:var(--text2);line-height:1.9">
+    <div>
+      <p>&#x2705; อุทธรณ์ผ่านแล้ว ไม่โดนบทลงโทษ</p>
+      <p>&#x2705; Picking List 3 ฝ่ายใช้งานทันที</p>
+      <p>&#x2705; เปิดฟีเจอร์ Pre-order TikTok Shop แล้ว</p>
+    </div>
+    <div>
+      <p>&#x1F504; AI Stock Alert — กำลังดำเนินการ</p>
+      <p>&#x1F504; Daily Report ทุกเช้า — กำลังดำเนินการ</p>
+      <p>&#x1F3AF; เป้าหมาย: LDR ต่ำกว่า 4% ตลอดเดือน</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Microbiotecthailand · รายงานปัญหา LDR &amp; แผนแก้ไข · สิงหาคม 2569</div>
+</div>
+</body>
+</html>

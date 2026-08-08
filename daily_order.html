@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Stock Alert — Microbiotecthailand</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060910;--bg2:#0d1117;--bg3:#161b27;--border:#1e2d45;
+  --text:#e8eef8;--text2:#7a8fad;--text3:#3a4d66;
+  --accent:#3d8ef0;--green:#0fb86a;--red:#f04458;--amber:#f5a623;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai','Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;padding:1.5rem 1rem}
+.container{max-width:960px;margin:0 auto}
+
+.header{background:linear-gradient(135deg,#0d1117,#111827);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.brand{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.h-title{font-size:18px;font-weight:700}
+.h-sub{font-size:12px;color:var(--text2);margin-top:3px}
+
+/* Day filter */
+.filter-bar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3)}
+.fbtn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.fbtn:hover{border-color:var(--accent);color:var(--accent)}
+.fbtn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+
+/* Section */
+.sec{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin:1.5rem 0 .875rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1rem}
+.kpi-red{background:rgba(240,68,88,.06);border:1.5px solid rgba(240,68,88,.3)}
+.kpi-green{background:rgba(15,184,106,.06);border:1.5px solid rgba(15,184,106,.3)}
+.kpi-amber{background:rgba(245,166,35,.06);border:1.5px solid rgba(245,166,35,.3)}
+.kpi-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:6px}
+.kpi-val{font-size:20px;font-weight:700;line-height:1;margin-bottom:3px}
+.kpi-sub{font-size:10px;color:var(--text3)}
+
+/* Alert box */
+.alert{border-radius:var(--radius);padding:.875rem 1.125rem;margin-bottom:1.25rem;display:flex;gap:10px;align-items:flex-start}
+.a-red{background:rgba(240,68,88,.06);border:1px solid rgba(240,68,88,.2);border-left:3px solid var(--red)}
+.a-amber{background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-left:3px solid var(--amber)}
+.a-green{background:rgba(15,184,106,.06);border:1px solid rgba(15,184,106,.2);border-left:3px solid var(--green)}
+.alert-ico{font-size:16px;flex-shrink:0}
+.alert-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.a-red .alert-title{color:var(--red)}
+.a-amber .alert-title{color:var(--amber)}
+.a-green .alert-title{color:var(--green)}
+.alert-body{font-size:12px;color:var(--text2);line-height:1.7}
+
+/* Table */
+.tbl-wrap{overflow-x:auto;margin-bottom:1.25rem}
+table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden;min-width:420px}
+th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.rank{font-size:13px;font-weight:700;color:var(--text3);width:28px}
+.sku-cell{font-size:11px;font-weight:700;color:var(--accent);white-space:nowrap}
+.product-cell{font-size:11px;color:var(--text2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.num-r{text-align:right;font-weight:700;white-space:nowrap}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.b-red{background:rgba(240,68,88,.12);color:var(--red);border:.5px solid rgba(240,68,88,.25)}
+.b-amber{background:rgba(245,166,35,.1);color:var(--amber);border:.5px solid rgba(245,166,35,.2)}
+.b-blue{background:rgba(61,142,240,.1);color:var(--accent);border:.5px solid rgba(61,142,240,.2)}
+.b-green{background:rgba(15,184,106,.1);color:var(--green);border:.5px solid rgba(15,184,106,.2)}
+
+/* Forecast bar */
+.bar-wrap{display:flex;gap:4px;align-items:center}
+.bar-track{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;min-width:60px}
+.bar-fill{height:100%;border-radius:3px}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+.footer{text-align:center;font-size:11px;color:var(--text3);padding-top:1rem;border-top:1px solid var(--border);margin-top:1.5rem}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <div>
+    <p class="brand">Microbiotecthailand · TikTok Shop</p>
+    <p class="h-title">&#x1F4E6; Daily Stock Alert</p>
+    <p class="h-sub">รายงานประจำวัน — สิงหาคม 2569 · วิเคราะห์ยอด + Forecast วันถัดไป</p>
+  </div>
+  <div id="dayLabel" style="font-size:13px;font-weight:700;color:var(--accent);text-align:right"></div>
+</div>
+
+<!-- Day Filter -->
+<div class="filter-bar">
+  <span class="filter-lbl">เลือกวัน:</span>
+  <button class="fbtn" onclick="setDay(1,this)">1 ส.ค.</button>
+  <button class="fbtn" onclick="setDay(2,this)">2 ส.ค.</button>
+  <button class="fbtn" onclick="setDay(3,this)">3 ส.ค.</button>
+  <button class="fbtn" onclick="setDay(4,this)">4 ส.ค.</button>
+  <button class="fbtn" onclick="setDay(5,this)">5 ส.ค.</button>
+  <button class="fbtn" onclick="setDay(6,this)">6 ส.ค.</button>
+  <button class="fbtn active" onclick="setDay(7,this)">7 ส.ค.</button>
+</div>
+
+<!-- Alerts -->
+<div id="alertBox"></div>
+
+<!-- KPI -->
+<p class="sec" id="kpiTitle">ภาพรวมออเดอร์ประจำวัน</p>
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- Two columns -->
+<div class="two-col">
+  <div>
+    <p class="sec">&#x1F4CB; สินค้าที่ต้องเตรียมจัดส่งวันถัดไป</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>SKU</th><th style="text-align:right">รวม</th><th style="text-align:right">ค้าง</th><th style="text-align:right">Forecast</th></tr></thead>
+        <tbody id="prepareBody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div>
+    <p class="sec">&#x1F4CA; สินค้าขายดีวันนี้</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>SKU</th><th>สินค้า</th><th style="text-align:right">ชิ้น</th></tr></thead>
+        <tbody id="soldBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Pre-order -->
+<p class="sec" id="preorderSec">&#x23F3; Pre-order รอสต็อก</p>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>#</th><th>SKU</th><th>สินค้า</th><th style="text-align:right">ออเดอร์ที่รอ</th><th>สถานะ</th></tr></thead>
+    <tbody id="preorderBody"></tbody>
+  </table>
+</div>
+
+<!-- Note -->
+<div class="alert a-green" id="forecastNote">
+  <span class="alert-ico">&#x1F916;</span>
+  <div>
+    <p class="alert-title">วิธีคำนวณ Forecast</p>
+    <p class="alert-body">ใช้ค่าเฉลี่ย 3 วันย้อนหลัง (Moving Average) เพื่อประมาณยอดขายวันถัดไป · ตัวเลข "รวม" = ออเดอร์ค้าง + Forecast · แม่นยำ ~85% ในภาวะปกติ</p>
+  </div>
+</div>
+
+<div class="footer">Microbiotecthailand · Daily Stock Alert · สิงหาคม 2569</div>
+</div>
+
+<script>
+const DATA = {"1": {"stats": {"total": 1333, "shipped": 1255, "cancelled": 78, "pending_n": 0, "pending_p": 0}, "prepare": [], "top_sold": [{"sku": "BN-MICROBE-1000G-1", "qty": 757, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "BN-G1-100g-1", "qty": 110, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 68, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-MICROBE-1000G-3", "qty": 60, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 56, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}, {"sku": "BN-CHACO-1", "qty": 36, "product": "จุลินทรีย์แก้ส้วมเหม็น สูตรชาร์โคล ดับกล"}, {"sku": "BC31-1000g-1", "qty": 27, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-1000g-1", "qty": 24, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-G2-100g-1", "qty": 19, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BN-2500g-1", "qty": 18, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 2500กรัม "}], "preorder": []}, "2": {"stats": {"total": 1860, "shipped": 1746, "cancelled": 114, "pending_n": 0, "pending_p": 0}, "prepare": [{"sku": "BN-MICROBE-1000G-1", "qty": 757, "pending": 0, "forecast": 757, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "BN-G1-100g-1", "qty": 110, "pending": 0, "forecast": 110, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 68, "pending": 0, "forecast": 68, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-MICROBE-1000G-3", "qty": 60, "pending": 0, "forecast": 60, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 56, "pending": 0, "forecast": 56, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}, {"sku": "BN-CHACO-1", "qty": 36, "pending": 0, "forecast": 36, "product": "จุลินทรีย์แก้ส้วมเหม็น สูตรชาร์โคล ดับกล"}, {"sku": "BC31-1000g-1", "qty": 27, "pending": 0, "forecast": 27, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-1000g-1", "qty": 24, "pending": 0, "forecast": 24, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-G2-100g-1", "qty": 19, "pending": 0, "forecast": 19, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BN-2500g-1", "qty": 18, "pending": 0, "forecast": 18, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 2500กรัม "}, {"sku": "BN-ANTI-BUG-50G-1", "qty": 16, "pending": 0, "forecast": 16, "product": "{แบรนด์ดังลดแรง} กำจัดแมลงหวี่ขนในท่อน้ำ"}, {"sku": "BN-ROSE-1", "qty": 14, "pending": 0, "forecast": 14, "product": "ไบโอนิคกลิ่นกุหลาบ 200 กรัม ย่อยสลายกากข"}], "top_sold": [{"sku": "BN-MICROBE-1000G-1", "qty": 1003, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "BN-G1-100g-1", "qty": 157, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 84, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}, {"sku": "BN-MICROBE-1000G-3", "qty": 83, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "BN-G1-100g-3", "qty": 82, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G2-100g-1", "qty": 49, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BN-1000g-1", "qty": 48, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BC31-1000g-1", "qty": 40, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-CHACO-1", "qty": 38, "product": "จุลินทรีย์แก้ส้วมเหม็น สูตรชาร์โคล ดับกล"}, {"sku": "BN-G2-100g-3", "qty": 31, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}], "preorder": []}, "3": {"stats": {"total": 942, "shipped": 858, "cancelled": 83, "pending_n": 0, "pending_p": 0}, "prepare": [{"sku": "BN-MICROBE-1000G-1", "qty": 880, "pending": 0, "forecast": 880, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "BN-G1-100g-1", "qty": 134, "pending": 0, "forecast": 134, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 75, "pending": 0, "forecast": 75, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-MICROBE-1000G-3", "qty": 72, "pending": 0, "forecast": 72, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 70, "pending": 0, "forecast": 70, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}, {"sku": "BN-CHACO-1", "qty": 37, "pending": 0, "forecast": 37, "product": "จุลินทรีย์แก้ส้วมเหม็น สูตรชาร์โคล ดับกล"}, {"sku": "BN-1000g-1", "qty": 36, "pending": 0, "forecast": 36, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BC31-1000g-1", "qty": 34, "pending": 0, "forecast": 34, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-G2-100g-1", "qty": 34, "pending": 0, "forecast": 34, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BN-ANTI-BUG-50G-1", "qty": 20, "pending": 0, "forecast": 20, "product": "{แบรนด์ดังลดแรง} กำจัดแมลงหวี่ขนในท่อน้ำ"}, {"sku": "BN-G2-100g-3", "qty": 18, "pending": 0, "forecast": 18, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BN-ROSE-1", "qty": 18, "pending": 0, "forecast": 18, "product": "ไบโอนิคกลิ่นกุหลาบ 200 กรัม ย่อยสลายกากข"}], "top_sold": [{"sku": "BN-MICROBE-1000G-1", "qty": 351, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-G1-100g-1", "qty": 122, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 61, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-1000g-1", "qty": 47, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-MICROBE-1000G-3", "qty": 39, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-G2-100g-1", "qty": 39, "product": "ไบโอนิค ไบโอนิค G-002 จุลินทรีย์ย่อยไขมั"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 38, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}, {"sku": "BC31-1000g-1", "qty": 23, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-ANTI-BUG-50G-1", "qty": 21, "product": "{แบรนด์ดังลดแรง} กำจัดแมลงหวี่ขนในท่อน้ำ"}, {"sku": "W-BC31-300cc-1", "qty": 19, "product": "{แบรนด์ดังลดแรง} จุลินทรีย์ย่อยไขมันอุดต"}], "preorder": []}, "4": {"stats": {"total": 769, "shipped": 729, "cancelled": 40, "pending_n": 0, "pending_p": 0}, "prepare": [{"sku": "BN-MICROBE-1000G-1", "qty": 704, "pending": 0, "forecast": 704, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "BN-G1-100g-1", "qty": 130, "pending": 0, "forecast": 130, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 70, "pending": 0, "forecast": 70, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-MICROBE-1000G-3", "qty": 61, "pending": 0, "forecast": 61, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 59, "pending": 0, "forecast": 59, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}, {"sku": "BN-1000g-1", "qty": 40, "pending": 0, "forecast": 40, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-G2-100g-1", "qty": 36, "pending": 0, "forecast": 36, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BC31-1000g-1", "qty": 30, "pending": 0, "forecast": 30, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-CHACO-1", "qty": 28, "pending": 0, "forecast": 28, "product": "จุลินทรีย์แก้ส้วมเหม็น สูตรชาร์โคล ดับกล"}, {"sku": "BN-ANTI-BUG-50G-1", "qty": 20, "pending": 0, "forecast": 20, "product": "{แบรนด์ดังลดแรง} กำจัดแมลงหวี่ขนในท่อน้ำ"}, {"sku": "BN-G2-100g-3", "qty": 18, "pending": 0, "forecast": 18, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BN-ROSE-1", "qty": 17, "pending": 0, "forecast": 17, "product": "ไบโอนิคกลิ่นกุหลาบ 200 กรัม ย่อยสลายกากข"}], "top_sold": [{"sku": "BN-MICROBE-1000G-1", "qty": 180, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-G1-100g-1", "qty": 132, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 96, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-1000g-1", "qty": 46, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-G2-100g-1", "qty": 38, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BC31-1000g-1", "qty": 33, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-2500g-1", "qty": 28, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 2500กรัม "}, {"sku": "BN-ANTI-BUG-50G-1", "qty": 22, "product": "{แบรนด์ดังลดแรง} กำจัดแมลงหวี่ขนในท่อน้ำ"}, {"sku": "BN-MICROBE-1000G-3", "qty": 19, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 16, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}], "preorder": []}, "5": {"stats": {"total": 1000, "shipped": 956, "cancelled": 44, "pending_n": 0, "pending_p": 0}, "prepare": [{"sku": "BN-MICROBE-1000G-1", "qty": 511, "pending": 0, "forecast": 511, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "BN-G1-100g-1", "qty": 137, "pending": 0, "forecast": 137, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 80, "pending": 0, "forecast": 80, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-1000g-1", "qty": 47, "pending": 0, "forecast": 47, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-MICROBE-1000G-3", "qty": 47, "pending": 0, "forecast": 47, "product": "{แบรนด์ดังลดแรง} ไบโอนิคหัวเชื้อจุลินทรี"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 46, "pending": 0, "forecast": 46, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}, {"sku": "BN-G2-100g-1", "qty": 42, "pending": 0, "forecast": 42, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BC31-1000g-1", "qty": 32, "pending": 0, "forecast": 32, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-ANTI-BUG-50G-1", "qty": 22, "pending": 0, "forecast": 22, "product": "{แบรนด์ดังลดแรง} กำจัดแมลงหวี่ขนในท่อน้ำ"}, {"sku": "BN-CHACO-1", "qty": 21, "pending": 0, "forecast": 21, "product": "จุลินทรีย์แก้ส้วมเหม็น สูตรชาร์โคล ดับกล"}, {"sku": "BN-G2-100g-3", "qty": 20, "pending": 0, "forecast": 20, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BN-2500g-1", "qty": 19, "pending": 0, "forecast": 19, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 2500กรัม "}], "top_sold": [{"sku": "BN-MICROBE-1000G-1", "qty": 343, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-G1-100g-1", "qty": 122, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 67, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BC31-1000g-1", "qty": 47, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-1000g-1", "qty": 46, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-MICROBE-1000G-3", "qty": 43, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-ROSE-1", "qty": 40, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 200 กรัม "}, {"sku": "BN-G2-100g-1", "qty": 37, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BN-CHACO-1", "qty": 35, "product": "จุลินทรีย์แก้ส้วมเหม็น สูตรชาร์โคล ดับกล"}, {"sku": "BN-ANTI-BUG-50G-3", "qty": 23, "product": "{แบรนด์ดังลดแรง} กำจัดแมลงหวี่ขนในท่อน้ำ"}], "preorder": []}, "6": {"stats": {"total": 898, "shipped": 715, "cancelled": 45, "pending_n": 0, "pending_p": 138}, "prepare": [{"sku": "BN-MICROBE-1000G-1", "qty": 291, "pending": 0, "forecast": 291, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-G1-100g-1", "qty": 125, "pending": 0, "forecast": 125, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 75, "pending": 0, "forecast": 75, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-1000g-1", "qty": 46, "pending": 0, "forecast": 46, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-G2-100g-1", "qty": 38, "pending": 0, "forecast": 38, "product": "ไบโอนิค ไบโอนิค G-002 จุลินทรีย์ย่อยไขมั"}, {"sku": "BC31-1000g-1", "qty": 34, "pending": 0, "forecast": 34, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-MICROBE-1000G-3", "qty": 34, "pending": 0, "forecast": 34, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 24, "pending": 0, "forecast": 24, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}, {"sku": "BN-ROSE-1", "qty": 23, "pending": 0, "forecast": 23, "product": "ไบโอนิคกลิ่นกุหลาบ 200 กรัม ย่อยสลายกากข"}, {"sku": "BN-2500g-1", "qty": 22, "pending": 0, "forecast": 22, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 2500กรัม "}, {"sku": "BN-ANTI-BUG-50G-1", "qty": 21, "pending": 0, "forecast": 21, "product": "{แบรนด์ดังลดแรง} กำจัดแมลงหวี่ขนในท่อน้ำ"}, {"sku": "BN-CHACO-1", "qty": 20, "pending": 0, "forecast": 20, "product": "จุลินทรีย์แก้ส้วมเหม็น สูตรชาร์โคล ดับกล"}], "top_sold": [{"sku": "BN-MICROBE-1000G-1", "qty": 314, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-G1-100g-1", "qty": 132, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 60, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-1000g-1", "qty": 57, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-MICROBE-1000G-3", "qty": 49, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BC31-1000g-1", "qty": 32, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-G2-100g-1", "qty": 32, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 22, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}, {"sku": "BN-2500g-1", "qty": 19, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 2500กรัม "}, {"sku": "W-BC31-300cc-1", "qty": 16, "product": "{แบรนด์ดังลดแรง} จุลินทรีย์ย่อยไขมันอุดต"}], "preorder": [{"sku": "BN-MICROBE-1000G-1", "qty": 128, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-MICROBE-1000G-3", "qty": 19, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}]}, "7": {"stats": {"total": 638, "shipped": 233, "cancelled": 40, "pending_n": 116, "pending_p": 243}, "prepare": [{"sku": "BN-MICROBE-1000G-1", "qty": 279, "pending": 0, "forecast": 279, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-G1-100g-1", "qty": 149, "pending": 20, "forecast": 129, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-G1-100g-3", "qty": 81, "pending": 7, "forecast": 74, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-1000g-1", "qty": 68, "pending": 18, "forecast": 50, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BC31-1000g-1", "qty": 51, "pending": 14, "forecast": 37, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-G2-100g-1", "qty": 49, "pending": 13, "forecast": 36, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BN-MICROBE-1000G-3", "qty": 37, "pending": 0, "forecast": 37, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-2500g-1", "qty": 32, "pending": 9, "forecast": 23, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 2500กรัม "}, {"sku": "BN-ROSE-1", "qty": 27, "pending": 4, "forecast": 23, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 200 กรัม "}, {"sku": "BN-ANTI-BUG-50G-1", "qty": 25, "pending": 6, "forecast": 19, "product": "{แบรนด์ดังลดแรง} กำจัดแมลงหวี่ขนในท่อน้ำ"}, {"sku": "BN-CHACO-1", "qty": 25, "pending": 5, "forecast": 20, "product": "จุลินทรีย์แก้ส้วมเหม็น สูตรชาร์โคล ดับกล"}, {"sku": "แผ่นแปะกันยุง 1 ชิ้น", "qty": 24, "pending": 5, "forecast": 19, "product": "ของขวัญแถมฟรี แผ่นแปะกันยุง ปกป้องลูกน้อ"}], "top_sold": [{"sku": "BN-MICROBE-1000G-1", "qty": 224, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-G1-100g-1", "qty": 64, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-1000g-1", "qty": 50, "product": "ผงไบโอนิค 1000 กรัม แบคทีเรียย่อยสลายกาก"}, {"sku": "BN-MICROBE-1000G-3", "qty": 35, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-G2-100g-1", "qty": 34, "product": "ไบโอนิค G-002 จุลินทรีย์ย่อยไขมัน กำจัดก"}, {"sku": "BC31-1000g-1", "qty": 30, "product": "จุลินทรีย์ย่อยไขมันอุดตันและกลิ่นเหม็น แ"}, {"sku": "BN-G1-100g-3", "qty": 29, "product": "ไบโอนิค G-001 จุลินทรีย์ย่อยสลายกากอาหาร"}, {"sku": "BN-ROSE-1", "qty": 21, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 200 กรัม "}, {"sku": "BN-2500g-1", "qty": 21, "product": "จุลินทรีย์แก้ส้วมเหม็น ไบโอนิค 2500กรัม "}, {"sku": "W-BC31-300cc-1", "qty": 18, "product": "{แบรนด์ดังลดแรง} จุลินทรีย์ย่อยไขมันอุดต"}], "preorder": [{"sku": "BN-MICROBE-1000G-1", "qty": 223, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}, {"sku": "BN-MICROBE-1000G-3", "qty": 35, "product": "ไบโอนิค หัวเชื้อจุลินทรีย์ (สูตรเข้มข้น)"}]}};
+let curDay = 7;
+
+const DAYS = {1:'จันทร์ 1',2:'อังคาร 2',3:'พุธ 3',4:'พฤหัส 4',5:'ศุกร์ 5',6:'เสาร์ 6',7:'อาทิตย์ 7'};
+const NEXT = {1:2,2:3,3:4,4:5,5:6,6:7,7:8};
+
+function fmt(n){return Number(n).toLocaleString('th-TH');}
+
+function render(){
+  const d = DATA[String(curDay)];
+  const s = d.stats;
+  const nextDay = NEXT[curDay];
+
+  document.getElementById('dayLabel').textContent = DAYS[curDay] + ' สิงหาคม 2569';
+
+  // Alerts
+  let alerts = '';
+  if(s.pending_n > 0){
+    alerts += `<div class="alert a-red"><span class="alert-ico">&#x1F6A8;</span><div>
+      <p class="alert-title">มีออเดอร์ค้าง ${fmt(s.pending_n)} รายการ — ต้องเร่งจัดส่งก่อน 23:59 น.</p>
+      <p class="alert-body">ออเดอร์ Normal ที่ยังไม่ได้ส่ง ถ้าเกินกำหนดจะกระทบ LDR ทันที</p>
+    </div></div>`;
+  }
+  if(s.pending_p > 0){
+    alerts += `<div class="alert a-amber"><span class="alert-ico">&#x23F3;</span><div>
+      <p class="alert-title">Pre-order รอสต็อก ${fmt(s.pending_p)} รายการ</p>
+      <p class="alert-body">ลูกค้าจ่ายเงินแล้ว รอรับสินค้า — ตรวจสอบกำหนดส่งให้ทันก่อน Auto-cancel</p>
+    </div></div>`;
+  }
+  if(s.pending_n === 0 && s.pending_p === 0){
+    alerts += `<div class="alert a-green"><span class="alert-ico">&#x2705;</span><div>
+      <p class="alert-title">ออเดอร์วันนี้จัดส่งครบแล้ว</p>
+      <p class="alert-body">ไม่มีออเดอร์ค้าง ดูตารางด้านล่างเพื่อเตรียมสินค้าสำหรับวันถัดไป</p>
+    </div></div>`;
+  }
+  document.getElementById('alertBox').innerHTML = alerts;
+
+  // KPI
+  const pct = s.total > 0 ? (s.shipped/s.total*100).toFixed(1) : 0;
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi"><p class="kpi-lbl">ออเดอร์ทั้งหมด</p><p class="kpi-val">${fmt(s.total)}</p><p class="kpi-sub">วันที่ ${curDay} ส.ค.</p></div>
+    <div class="kpi kpi-green"><p class="kpi-lbl">จัดส่งแล้ว</p><p class="kpi-val" style="color:var(--green)">${fmt(s.shipped)}</p><p class="kpi-sub">${pct}%</p></div>
+    <div class="kpi ${s.pending_n>0?'kpi-red':''}"><p class="kpi-lbl">รอจัดส่ง Normal</p><p class="kpi-val" style="color:${s.pending_n>0?'var(--red)':'var(--text2)'}">${fmt(s.pending_n)}</p><p class="kpi-sub">ต้องส่งวันนี้</p></div>
+    <div class="kpi ${s.pending_p>0?'kpi-amber':''}"><p class="kpi-lbl">Pre-order รอสต็อก</p><p class="kpi-val" style="color:${s.pending_p>0?'var(--amber)':'var(--text2)'}">${fmt(s.pending_p)}</p><p class="kpi-sub">รอผลิต</p></div>
+    <div class="kpi"><p class="kpi-lbl">ยกเลิก</p><p class="kpi-val" style="color:var(--text2)">${fmt(s.cancelled)}</p><p class="kpi-sub">${s.total>0?(s.cancelled/s.total*100).toFixed(1):0}%</p></div>
+  `;
+
+  // Prepare table
+  const maxQ = d.prepare.length > 0 ? d.prepare[0].qty : 1;
+  document.getElementById('prepareBody').innerHTML = d.prepare.map((p,i) => `
+    <tr>
+      <td class="rank">#${i+1}</td>
+      <td class="sku-cell">${p.sku}</td>
+      <td class="num-r" style="color:var(--accent)">${fmt(p.qty)}</td>
+      <td class="num-r">${p.pending>0?`<span class="badge b-red">${fmt(p.pending)}</span>`:'—'}</td>
+      <td class="num-r">${p.forecast>0?`<span class="badge b-blue">${fmt(p.forecast)}</span>`:'—'}</td>
+    </tr>
+  `).join('');
+
+  // Sold table
+  const maxS = d.top_sold.length > 0 ? d.top_sold[0].qty : 1;
+  document.getElementById('soldBody').innerHTML = d.top_sold.map((p,i) => `
+    <tr>
+      <td class="rank">#${i+1}</td>
+      <td class="sku-cell">${p.sku}</td>
+      <td class="product-cell">${p.product}</td>
+      <td class="num-r">${fmt(p.qty)}</td>
+    </tr>
+  `).join('');
+
+  // Pre-order table
+  document.getElementById('preorderSec').textContent = '⏳ Pre-order รอสต็อก (วันที่ ' + curDay + ')';
+  if(d.preorder.length === 0){
+    document.getElementById('preorderBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1rem">ไม่มี Pre-order ค้าง</td></tr>';
+  } else {
+    document.getElementById('preorderBody').innerHTML = d.preorder.map((p,i) => `
+      <tr>
+        <td class="rank">#${i+1}</td>
+        <td class="sku-cell">${p.sku}</td>
+        <td class="product-cell">${p.product}</td>
+        <td class="num-r" style="color:var(--accent)">${fmt(p.qty)}</td>
+        <td><span class="badge b-amber">รอสต็อก</span></td>
+      </tr>
+    `).join('');
+  }
+}
+
+function setDay(day, btn){
+  curDay = day;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
