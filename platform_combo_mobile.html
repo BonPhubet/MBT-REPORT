@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ยอดเงิน vs ค่าใช้จ่าย — ทุกแพลตฟอร์ม</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d1117;
+    color: #fff;
+    font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+    padding: 20px 16px 32px;
+    max-width: 980px;
+    margin: auto;
+  }
+
+  /* ── Page header ── */
+  .page-head { margin-bottom: 16px; }
+  .page-head h1 { font-size: 16px; font-weight: 700; margin-bottom: 3px; line-height: 1.4; }
+  .page-head p  { font-size: 11px; color: #555; }
+
+  /* ── KPI strip (mobile-first) ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .kpi-card {
+    background: #161b27;
+    border-radius: 10px;
+    padding: 10px 12px 9px;
+    border-left: 3px solid var(--kc);
+  }
+  .kpi-label { font-size: 10px; color: #666; margin-bottom: 3px; }
+  .kpi-value { font-size: 15px; font-weight: 700; color: var(--kc); }
+  .kpi-mom   { font-size: 10px; margin-top: 2px; }
+  .up { color: #22c55e; } .dn { color: #ef4444; } .na { color: #444; }
+
+  /* ── Platform tabs ── */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .tab {
+    padding: 9px 4px;
+    border-radius: 10px;
+    border: 1.5px solid #2a2d3a;
+    background: transparent;
+    color: #666;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .18s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .tab-emoji { font-size: 16px; }
+  .tab:hover { border-color: #444; color: #ccc; }
+  .tab.active { color: #fff; border-color: transparent; }
+  .tab-tt.active { background: linear-gradient(135deg,#3a3a4a,#222); border-color: #555; }
+  .tab-sh.active { background: linear-gradient(135deg,#ff6b2b,#e04400); }
+  .tab-lz.active { background: linear-gradient(135deg,#1a6fe8,#0a4fb0); }
+  .tab-all.active { background: linear-gradient(135deg,#7c3aed,#4c1d95); }
+
+  /* ── Chart card ── */
+  .chart-card {
+    background: #161b27;
+    border-radius: 14px;
+    padding: 16px 14px 14px;
+    margin-bottom: 10px;
+  }
+  .chart-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+  .chart-top h2 { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .chart-top p  { font-size: 10px; color: #555; line-height: 1.4; }
+  .replay {
+    flex-shrink: 0;
+    background: #1e2330;
+    border: 1px solid #2a2d3a;
+    border-radius: 8px;
+    color: #888;
+    font-size: 11px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .15s;
+    touch-action: manipulation;
+  }
+  .replay:hover { color: #ccc; border-color: #555; }
+
+  .chart-wrap { position: relative; height: 260px; }
+
+  /* Legend — 2 cols on mobile */
+  .legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #1e2330;
+  }
+  .leg {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; color: #aaa;
+    cursor: pointer; user-select: none; transition: color .15s;
+    touch-action: manipulation;
+  }
+  .leg:hover { color: #fff; }
+  .leg.off { opacity: .28; }
+  .sw-bar  { width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+  .sw-line { width:24px; height:3px; border-radius:3px; flex-shrink:0; position:relative; }
+  .sw-line::after {
+    content:''; position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    width:8px; height:8px; border-radius:50%;
+    background:inherit; border:2px solid #161b27;
+  }
+
+  /* ── Table card ── */
+  .table-card {
+    background: #161b27;
+    border-radius: 14px;
+    padding: 14px 14px 14px;
+  }
+  .table-head {
+    display: flex; align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .table-head h2 { font-size: 13px; font-weight: 700; }
+  .table-head p  { font-size: 10px; color: #555; }
+
+  /* Swipe hint */
+  .swipe-hint {
+    font-size: 10px; color: #444;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-scroll::-webkit-scrollbar { height: 3px; }
+  .table-scroll::-webkit-scrollbar-track { background: #1a1e2a; }
+  .table-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 11.5px; white-space: nowrap;
+    min-width: 680px;
+  }
+  thead tr.grp th {
+    font-size: 9px; text-transform: uppercase;
+    letter-spacing: .4px; color: #555;
+    padding: 5px 10px 3px; text-align: center;
+    border-bottom: 1px solid #1e2330; background: #161b27;
+  }
+  thead tr.grp th:first-child { text-align: left; }
+  thead tr.col th {
+    font-size: 10px; font-weight: 600; color: #666;
+    padding: 5px 10px 8px; text-align: right;
+    border-bottom: 2px solid #2a2d3a; background: #161b27;
+  }
+  thead tr.col th:first-child { text-align: left; color: #888; }
+  .bl { border-left: 1px solid #2a2d3a; }
+  tbody tr { border-bottom: 1px solid #1a1e28; transition: background .12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #1d2235; }
+  td { padding: 9px 10px; text-align: right; font-variant-numeric: tabular-nums; color: #ccc; }
+  td:first-child { text-align: left; color: #fff; font-weight: 600; padding-left: 4px; }
+  .c-rev  { color: #93c5fd; }
+  .c-net  { color: #fcd34d; }
+  .c-fee  { color: #fca5a5; }
+  .c-ads  { color: #86efac; }
+  .c-exp  { color: #fb923c; }
+  .c-pct  { color: #888; font-size: 10.5px; }
+  .c-warn { color: #f97316; font-weight: 700; font-size: 10.5px; }
+  .c-bad  { color: #ef4444; font-weight: 700; font-size: 10.5px; }
+  .up-s   { color: #2ecc71; font-size: 10px; }
+  .dn-s   { color: #ef4444; font-size: 10px; }
+  .na-s   { color: #444; font-size: 10px; }
+  tfoot td {
+    padding: 10px 10px; font-weight: 700; color: #fff;
+    background: #1a1d27; border-top: 2px solid #3b82f6; font-size: 11.5px;
+  }
+  tfoot td:first-child { color: #3b82f6; padding-left: 4px; }
+
+  /* ── Desktop overrides ── */
+  @media (min-width: 640px) {
+    body { padding: 28px 24px 40px; }
+    .page-head h1 { font-size: 18px; }
+    .page-head p  { font-size: 12px; }
+
+    .kpi-row { grid-template-columns: repeat(4, 1fr); }
+
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .tab {
+      flex-direction: row;
+      padding: 8px 20px;
+      font-size: 13px;
+      gap: 6px;
+    }
+    .tab-emoji { font-size: 14px; }
+
+    .chart-card { padding: 20px 24px 16px; }
+    .chart-top h2 { font-size: 14px; }
+    .chart-top p  { font-size: 12px; }
+    .chart-wrap { height: 380px; }
+
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 20px;
+      justify-content: center;
+    }
+    .leg { font-size: 12.5px; }
+
+    .table-card { padding: 18px 24px 16px; }
+    .table-head h2 { font-size: 14px; }
+    .table-head p  { font-size: 11.5px; }
+    table { font-size: 12.5px; }
+    thead tr.grp th { font-size: 10px; padding: 6px 12px 4px; }
+    thead tr.col th { font-size: 11px; padding: 6px 12px 10px; }
+    td { padding: 10px 12px; }
+    .c-pct  { font-size: 11.5px; }
+    .c-warn { font-size: 11.5px; }
+    .c-bad  { font-size: 11.5px; }
+    .up-s   { font-size: 11px; }
+    .dn-s   { font-size: 11px; }
+    .swipe-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>📊 ยอดเงิน vs ค่าใช้จ่าย</h1>
+  <p>Microbiotec Thailand &nbsp;·&nbsp; ม.ค. – ก.ค. 2569</p>
+</div>
+
+<!-- ── KPI Strip ── -->
+<div class="kpi-row" id="kpiRow">
+  <div class="kpi-card" style="--kc:#93c5fd">
+    <div class="kpi-label">รายได้สุทธิ</div>
+    <div class="kpi-value" id="kpi-rev">—</div>
+    <div class="kpi-mom" id="kpi-rev-m"></div>
+  </div>
+  <div class="kpi-card" style="--kc:#fcd34d">
+    <div class="kpi-label">เงินเข้าบริษัท</div>
+    <div class="kpi-value" id="kpi-net">—</div>
+    <div class="kpi-mom" id="kpi-net-m"></div>
+  </div>
+  <div class="kpi-card" style="--kc:#fca5a5">
+    <div class="kpi-label">ค่าธรรมเนียม</div>
+    <div class="kpi-value" id="kpi-fee">—</div>
+    <div class="kpi-mom" id="kpi-fee-m"></div>
+  </div>
+  <div class="kpi-card" style="--kc:#86efac">
+    <div class="kpi-label">ค่า Ads</div>
+    <div class="kpi-value" id="kpi-ads">—</div>
+    <div class="kpi-mom" id="kpi-ads-m"></div>
+  </div>
+</div>
+
+<!-- ── Tabs ── -->
+<div class="tabs">
+  <button class="tab tab-tt" onclick="switchTab('tiktok')">
+    <span class="tab-emoji">🎵</span>TikTok
+  </button>
+  <button class="tab tab-sh" onclick="switchTab('shopee')">
+    <span class="tab-emoji">🛒</span>Shopee
+  </button>
+  <button class="tab tab-lz" onclick="switchTab('lazada')">
+    <span class="tab-emoji">📦</span>Lazada
+  </button>
+  <button class="tab tab-all active" onclick="switchTab('all')">
+    <span class="tab-emoji">🌐</span>รวมทั้งหมด
+  </button>
+</div>
+
+<!-- ── Chart ── -->
+<div class="chart-card">
+  <div class="chart-top">
+    <div>
+      <h2 id="chartTitle">รวมทุกแพลตฟอร์ม</h2>
+      <p>แท่ง = รายได้ / เงินเข้า &nbsp;·&nbsp; เส้น = ค่าธรรมเนียม &amp; Ads</p>
+    </div>
+    <button class="replay" onclick="replay()">↺ เล่นใหม่</button>
+  </div>
+  <div class="chart-wrap"><canvas id="chart"></canvas></div>
+  <div class="legend" id="legend"></div>
+</div>
+
+<!-- ── Table ── -->
+<div class="table-card">
+  <div class="table-head">
+    <h2>🗃️ ข้อมูลรายเดือน</h2>
+    <p>🟠 ≥45%&nbsp; 🔴 ≥50% ของรายได้</p>
+  </div>
+  <div class="swipe-hint">👉 เลื่อนซ้าย-ขวาเพื่อดูข้อมูลทั้งหมด</div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr class="grp">
+          <th rowspan="2" style="vertical-align:bottom">เดือน</th>
+          <th colspan="2" class="bl" style="border-top:2px solid #3b82f6">💰 รายได้สุทธิ</th>
+          <th colspan="3" class="bl" style="border-top:2px solid #fca5a5">🏪 ค่าธรรมเนียม</th>
+          <th colspan="3" class="bl" style="border-top:2px solid #86efac">📢 ค่า Ads</th>
+          <th colspan="2" class="bl" style="border-top:2px solid #fb923c">🔴 รวม คชจ.</th>
+          <th colspan="2" class="bl" style="border-top:2px solid #fcd34d">🏦 เงินเข้าบริษัท</th>
+        </tr>
+        <tr class="col">
+          <th class="bl">บาท</th><th>MoM</th>
+          <th class="bl">บาท</th><th>%</th><th>MoM</th>
+          <th class="bl">บาท</th><th>%</th><th>MoM</th>
+          <th class="bl">บาท</th><th>%</th>
+          <th class="bl">บาท</th><th>MoM</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+      <tfoot id="tfoot"></tfoot>
+    </table>
+  </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.'];
+
+const DB = {
+  tiktok: {
+    label: 'TikTok Shop',
+    revenue: [1572378,1738905,1733361,1762332,2268420,2556744,3230888],
+    fees:    [360227, 443585, 330972, 420926, 604191, 754767, 934960],
+    ads:     [309984, 318195, 320595, 389458, 419641, 539207, 631645],
+    net:     [1212151,1295320,1402389,1341406,1664229,1801978,2382260],
+    barColor:'rgba(150,150,170,0.82)', barHover:'rgba(180,180,200,1)',
+  },
+  shopee: {
+    label: 'Shopee',
+    revenue: [3776592,4206224,4580903,4073260,4370539,5371639,6069771],
+    fees:    [885829, 1000154,1137888,1059122,1173366,1568952,1823939],
+    ads:     [510415, 548832, 580073, 585643, 622171, 848124, 884095],
+    net:     [2507635,3346883,3647442,2761469,2800887,4287896,3724126],
+    barColor:'rgba(255,107,43,0.82)', barHover:'rgba(255,107,43,1)',
+  },
+  lazada: {
+    label: 'Lazada',
+    revenue: [535553, 640496, 905023, 642042, 696335, 684343, 565164],
+    fees:    [125797, 142873, 216871, 143212, 184148, 184626, 165963],
+    ads:     [112991, 166737, 246533, 200354, 179959, 175062, 127425],
+    net:     [323968, 452632, 411813, 569976, 436018, 454645, 443680],
+    barColor:'rgba(26,111,232,0.82)', barHover:'rgba(26,111,232,1)',
+  },
+};
+DB.all = {
+  label: 'รวมทุกแพลตฟอร์ม',
+  revenue: months.map((_,i)=>DB.tiktok.revenue[i]+DB.shopee.revenue[i]+DB.lazada.revenue[i]),
+  fees:    months.map((_,i)=>DB.tiktok.fees[i]+DB.shopee.fees[i]+DB.lazada.fees[i]),
+  ads:     months.map((_,i)=>DB.tiktok.ads[i]+DB.shopee.ads[i]+DB.lazada.ads[i]),
+  net:     months.map((_,i)=>DB.tiktok.net[i]+DB.shopee.net[i]+DB.lazada.net[i]),
+  barColor:'rgba(124,58,237,0.82)', barHover:'rgba(124,58,237,1)',
+};
+
+const fmt   = n => '฿'+n.toLocaleString('th-TH',{maximumFractionDigits:0});
+const short = n => n>=1e6?(n/1e6).toFixed(2)+'M':Math.round(n/1000)+'K';
+const mom   = (cur,prev) => {
+  if(prev==null) return '<span class="na-s">—</span>';
+  const d=((cur-prev)/prev*100).toFixed(1);
+  return parseFloat(d)>=0
+    ?`<span class="up-s">▲ +${d}%</span>`
+    :`<span class="dn-s">▼ ${d}%</span>`;
+};
+const expCls = r => r>=50?'c-bad':r>=45?'c-warn':'c-pct';
+
+/* ── KPI update ── */
+function updateKPI(key) {
+  const d = DB[key];
+  const last = months.length - 1;
+  const prev = last - 1;
+
+  const vals = [
+    { id:'kpi-rev', mid:'kpi-rev-m', cur:d.revenue[last], prv:d.revenue[prev], label:'ล่าสุด ก.ค.' },
+    { id:'kpi-net', mid:'kpi-net-m', cur:d.net[last],     prv:d.net[prev],     label:'ล่าสุด ก.ค.' },
+    { id:'kpi-fee', mid:'kpi-fee-m', cur:d.fees[last],    prv:d.fees[prev],    label:'ล่าสุด ก.ค.' },
+    { id:'kpi-ads', mid:'kpi-ads-m', cur:d.ads[last],     prv:d.ads[prev],     label:'ล่าสุด ก.ค.' },
+  ];
+  vals.forEach(v => {
+    document.getElementById(v.id).textContent = '฿'+short(v.cur);
+    const pct = ((v.cur-v.prv)/v.prv*100).toFixed(1);
+    const arrow = parseFloat(pct)>=0 ? '▲' : '▼';
+    const cls   = parseFloat(pct)>=0 ? 'up' : 'dn';
+    document.getElementById(v.mid).innerHTML =
+      `<span class="${cls}">${arrow} ${Math.abs(pct)}% MoM</span>`;
+  });
+}
+
+/* ── Chart ── */
+const SURFACE = '#161b27';
+Chart.defaults.color = '#555';
+Chart.defaults.font.family = 'system-ui,-apple-system,"Segoe UI","Noto Sans Thai",sans-serif';
+
+const isMobile = () => window.innerWidth < 640;
+
+const lineAnim = {
+  x:{type:'number',easing:'easeOutQuart',duration:900,from:NaN,
+     delay(ctx){return ctx.type==='data'?ctx.dataIndex*130:0;}},
+  y:{type:'number',easing:'easeOutQuart',duration:900,
+     delay(ctx){return ctx.type==='data'?ctx.dataIndex*130:0;}},
+};
+
+function makeDatasets(key) {
+  const d = DB[key];
+  const mob = isMobile();
+  const ptR = mob ? 4 : 7;
+  const ptHR = mob ? 7 : 10;
+  const lblSz = mob ? 9 : 10.5;
+  return [
+    {
+      type:'bar', label:'รายได้หลังหักส่วนลด', data:[...d.revenue],
+      backgroundColor:d.barColor, hoverBackgroundColor:d.barHover,
+      borderRadius:{topLeft:4,topRight:4}, borderSkipped:'bottom', order:2,
+      datalabels:{
+        anchor:'end', align:'end', offset:mob?1:2,
+        color:'#c4d8ff', font:{size:mob?8.5:11,weight:'700'}, formatter:v=>short(v)
+      }
+    },
+    {
+      type:'bar', label:'ยอดเงินเข้าบริษัท', data:[...d.net],
+      backgroundColor:'rgba(245,158,11,0.82)', hoverBackgroundColor:'rgba(245,158,11,1)',
+      borderRadius:{topLeft:4,topRight:4}, borderSkipped:'bottom', order:2,
+      datalabels:{
+        anchor:'end', align:'end', offset:mob?1:2,
+        color:'#fcd34d', font:{size:mob?8.5:11,weight:'700'}, formatter:v=>short(v)
+      }
+    },
+    {
+      type:'line', label:'ค่าธรรมเนียม Platform', data:[...d.fees],
+      borderColor:'#ef4444', backgroundColor:'transparent',
+      borderWidth:mob?2:2.5, pointRadius:ptR, pointHoverRadius:ptHR,
+      pointBackgroundColor:'#ef4444', pointBorderColor:SURFACE, pointBorderWidth:2,
+      tension:0.38, order:1, animation:lineAnim,
+      datalabels:{
+        anchor:'top', align:'top', offset:mob?2:4,
+        color:'#fca5a5', font:{size:lblSz,weight:'700'}, formatter:v=>short(v)
+      }
+    },
+    {
+      type:'line', label:'ค่า Ads Platform', data:[...d.ads],
+      borderColor:'#22c55e', backgroundColor:'transparent',
+      borderWidth:mob?2:2.5, pointRadius:ptR, pointHoverRadius:ptHR,
+      pointBackgroundColor:'#22c55e', pointBorderColor:SURFACE, pointBorderWidth:2,
+      tension:0.38, order:1, animation:lineAnim,
+      datalabels:{
+        anchor:'bottom', align:'bottom', offset:mob?2:4,
+        color:'#86efac', font:{size:lblSz,weight:'700'}, formatter:v=>short(v)
+      }
+    },
+  ];
+}
+
+const chart = new Chart(document.getElementById('chart'),{
+  data:{ labels:months, datasets:makeDatasets('all') },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    animation:{duration:900,easing:'easeOutQuart'},
+    layout:{padding:{top:28,bottom:6,left:2,right:2}},
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:false},
+      datalabels:{},
+      tooltip:{
+        backgroundColor:'#1e2330',titleColor:'#fff',bodyColor:'#bbb',
+        borderColor:'rgba(255,255,255,.08)',borderWidth:1,
+        padding:12,cornerRadius:10,
+        callbacks:{
+          label:ctx=>{
+            const v=ctx.parsed.y;
+            const prev=ctx.dataIndex>0?ctx.dataset.data[ctx.dataIndex-1]:null;
+            const d=prev!=null?((v-prev)/prev*100).toFixed(1):null;
+            const arrow=d!=null?(parseFloat(d)>=0?`  ▲ +${d}%`:`  ▼ ${d}%`):'';
+            return `  ${ctx.dataset.label}: ${fmt(v)}${arrow}`;
+          }
+        }
+      }
+    },
+    scales:{
+      x:{
+        grid:{display:false},border:{color:'#2a2d3a'},
+        ticks:{color:'#666',padding:6,font:{size:11}}
+      },
+      y:{
+        grid:{color:'#1a1e2a',lineWidth:1},border:{color:'#2a2d3a'},
+        ticks:{color:'#555',padding:8,callback:v=>'฿'+(v/1e6).toFixed(1)+'M'},
+        min:0
+      }
+    }
+  }
+});
+
+/* ── Legend ── */
+const LEG=[
+  {t:'bar', c:'rgba(150,150,170,0.85)'},
+  {t:'bar', c:'rgba(245,158,11,0.85)'},
+  {t:'line',c:'#ef4444'},
+  {t:'line',c:'#22c55e'},
+];
+const legEl=document.getElementById('legend');
+['รายได้หลังหักส่วนลด','ยอดเงินเข้าบริษัท','ค่าธรรมเนียม Platform','ค่า Ads Platform'].forEach((lbl,i)=>{
+  const item=document.createElement('div'); item.className='leg'; item.id='leg'+i;
+  const sw=document.createElement('div');
+  sw.className=LEG[i].t==='bar'?'sw-bar':'sw-line';
+  sw.style.background=LEG[i].c; sw.id='sw'+i;
+  const span=document.createElement('span'); span.textContent=lbl;
+  item.appendChild(sw); item.appendChild(span);
+  item.onclick=()=>{
+    const m=chart.getDatasetMeta(i);
+    m.hidden=!m.hidden; item.classList.toggle('off',m.hidden); chart.update();
+  };
+  legEl.appendChild(item);
+});
+
+function updateLegendColor(key){
+  const sw=document.getElementById('sw0');
+  if(sw) sw.style.background=DB[key].barColor;
+}
+
+/* ── Table ── */
+function buildTable(key){
+  const d=DB[key];
+  const totExp=months.map((_,i)=>d.fees[i]+d.ads[i]);
+  let rows='';
+  months.forEach((m,i)=>{
+    const er=(totExp[i]/d.revenue[i]*100);
+    const fr=(d.fees[i]/d.revenue[i]*100).toFixed(1);
+    const ar=(d.ads[i]/d.revenue[i]*100).toFixed(1);
+    const pR=i>0?d.revenue[i-1]:null;
+    const pF=i>0?d.fees[i-1]:null;
+    const pA=i>0?d.ads[i-1]:null;
+    const pN=i>0?d.net[i-1]:null;
+    rows+=`<tr>
+      <td>${m}</td>
+      <td class="bl c-rev">${fmt(d.revenue[i])}</td>
+      <td>${mom(d.revenue[i],pR)}</td>
+      <td class="bl c-fee">${fmt(d.fees[i])}</td>
+      <td class="c-warn">${fr}%</td>
+      <td>${mom(d.fees[i],pF)}</td>
+      <td class="bl c-ads">${fmt(d.ads[i])}</td>
+      <td class="c-pct">${ar}%</td>
+      <td>${mom(d.ads[i],pA)}</td>
+      <td class="bl c-exp">${fmt(totExp[i])}</td>
+      <td class="${expCls(er)}">${er.toFixed(1)}%</td>
+      <td class="bl c-net">${fmt(d.net[i])}</td>
+      <td>${mom(d.net[i],pN)}</td>
+    </tr>`;
+  });
+  document.getElementById('tbody').innerHTML=rows;
+
+  const tR=d.revenue.reduce((a,b)=>a+b,0);
+  const tF=d.fees.reduce((a,b)=>a+b,0);
+  const tA=d.ads.reduce((a,b)=>a+b,0);
+  const tE=totExp.reduce((a,b)=>a+b,0);
+  const tN=d.net.reduce((a,b)=>a+b,0);
+  document.getElementById('tfoot').innerHTML=`<tr>
+    <td>รวม 7 เดือน</td>
+    <td class="bl">${fmt(tR)}</td><td></td>
+    <td class="bl">${fmt(tF)}</td>
+    <td style="color:#f97316">${(tF/tR*100).toFixed(1)}%</td><td></td>
+    <td class="bl">${fmt(tA)}</td>
+    <td style="color:#ccc">${(tA/tR*100).toFixed(1)}%</td><td></td>
+    <td class="bl">${fmt(tE)}</td>
+    <td style="color:#ef4444">${(tE/tR*100).toFixed(1)}%</td>
+    <td class="bl">${fmt(tN)}</td><td></td>
+  </tr>`;
+}
+
+/* ── Tab switch ── */
+let currentKey = 'all';
+function switchTab(key){
+  currentKey=key;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  const map={tiktok:'tab-tt',shopee:'tab-sh',lazada:'tab-lz',all:'tab-all'};
+  document.querySelector('.'+map[key]).classList.add('active');
+  document.getElementById('chartTitle').textContent=DB[key].label;
+
+  const ds=makeDatasets(key);
+  chart.data.datasets.forEach((d,i)=>{
+    d.data=[...ds[i].data];
+    if(i===0){ d.backgroundColor=ds[i].backgroundColor; d.hoverBackgroundColor=ds[i].hoverBackgroundColor; }
+  });
+  chart.data.datasets.forEach((_,i)=>{
+    const meta=chart.getDatasetMeta(i);
+    meta.hidden=false;
+    document.getElementById('leg'+i)?.classList.remove('off');
+  });
+  updateLegendColor(key);
+  chart.update('active');
+  buildTable(key);
+  updateKPI(key);
+}
+
+/* ── Init ── */
+buildTable('all');
+updateKPI('all');
+
+function replay(){
+  chart.data.datasets.forEach(ds=>{ds.data=[...ds.data];}); chart.update('active');
+}
+
+/* Rebuild chart on resize for label sizing */
+let resizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{
+    const ds = makeDatasets(currentKey);
+    chart.data.datasets.forEach((d,i)=>{
+      d.datalabels = ds[i].datalabels;
+      d.pointRadius = ds[i].pointRadius;
+      d.borderWidth = ds[i].borderWidth;
+    });
+    chart.update('none');
+  }, 250);
+});
+</script>
+</body>
+</html>
