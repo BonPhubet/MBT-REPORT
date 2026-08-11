@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBT — Financial Expense Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060910;--bg2:#0d1117;--bg3:#161b27;--bg4:#1e2435;
+  --border:#1e2d45;--border2:#2a3d5a;
+  --text:#e8eef8;--text2:#7a8fad;--text3:#3a4d66;
+  --accent:#3d8ef0;--green:#0fb86a;--red:#f04458;
+  --amber:#f5a623;--orange:#f07340;--purple:#9b6cf5;
+  --shopee:#ff6b2b;--lazada:#1a6fe8;--tiktok:#69c9d0;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Thai','Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+/* NAV */
+.nav-bar{background:linear-gradient(135deg,#060910,#0d1117);border-bottom:1px solid var(--border);padding:.65rem 1.25rem;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+.nav-brand{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
+.nav-badge{font-size:12px;font-weight:600;color:var(--text2);background:var(--bg3);border:1px solid var(--border2);padding:4px 14px;border-radius:20px}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:.75rem 1.25rem;font-size:12px;color:var(--text2);z-index:999;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;max-width:280px}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.container{max-width:980px;margin:0 auto;padding:1.25rem 1rem}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#0d1117,#111827);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.brand{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.h-title{font-size:20px;font-weight:700;color:var(--text)}
+.h-sub{font-size:12px;color:var(--text2);margin-top:3px}
+.h-right{text-align:right}
+.h-date{font-size:13px;font-weight:600;color:var(--text)}
+
+/* FILTER */
+.filter-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1.25rem;margin-bottom:1rem;display:flex;flex-direction:column;gap:10px}
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);white-space:nowrap;min-width:60px}
+.fbtn{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.fbtn:hover{border-color:var(--accent);color:var(--accent)}
+.fbtn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.fbtn.pf-shopee.active{background:var(--shopee);border-color:var(--shopee);color:#fff}
+.fbtn.pf-lazada.active{background:var(--lazada);border-color:var(--lazada);color:#fff}
+.fbtn.pf-tiktok.active{background:#1a8fa8;border-color:#1a8fa8;color:#fff}
+.q-sub{font-size:10px;opacity:.65;margin-left:2px}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin-bottom:1rem}
+.kpi{border-radius:var(--radius);padding:1rem 1.125rem}
+.kpi-plain{background:var(--bg2);border:1px solid var(--border)}
+.kpi-green{background:rgba(15,184,106,.06);border:1.5px solid rgba(15,184,106,.3)}
+.kpi-amber{background:rgba(245,166,35,.06);border:1.5px solid rgba(245,166,35,.3)}
+.kpi-red{background:rgba(240,68,88,.06);border:1.5px solid rgba(240,68,88,.3)}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.kpi-green .kpi-lbl{color:var(--green)}
+.kpi-amber .kpi-lbl{color:var(--amber)}
+.kpi-red .kpi-lbl{color:var(--red)}
+.kpi-val{font-size:19px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* RULE BANNER */
+.rule-banner{border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.rb-pass{background:rgba(15,184,106,.05);border:1px solid rgba(15,184,106,.25)}
+.rb-fail{background:rgba(240,68,88,.05);border:1px solid rgba(240,68,88,.25)}
+.rb-warn{background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.2)}
+.rb-left{display:flex;align-items:center;gap:12px}
+.rb-icon{font-size:22px}
+.rb-title{font-size:14px;font-weight:700;color:var(--text)}
+.rb-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.rb-badge{padding:5px 16px;border-radius:20px;font-size:12px;font-weight:700}
+.badge-pass{background:rgba(15,184,106,.12);color:var(--green);border:1px solid rgba(15,184,106,.3)}
+.badge-fail{background:rgba(240,68,88,.1);color:var(--red);border:1px solid rgba(240,68,88,.25)}
+.badge-warn{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.25)}
+
+/* PLATFORM SUMMARY */
+.pf-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.pf-summary{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.pf-s-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pf-s-name{font-size:13px;font-weight:700;color:var(--text)}
+.pf-s-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px}
+.sb-shopee{background:rgba(255,107,43,.1);color:var(--shopee);border:1px solid rgba(255,107,43,.25)}
+.sb-lazada{background:rgba(26,111,232,.1);color:var(--lazada);border:1px solid rgba(26,111,232,.25)}
+.sb-tiktok{background:rgba(105,201,208,.1);color:var(--tiktok);border:1px solid rgba(105,201,208,.25)}
+.pf-s-rev{font-size:18px;font-weight:700;color:var(--text);margin-bottom:3px}
+.pf-s-net{font-size:13px;font-weight:600;color:var(--green);margin-bottom:8px}
+.pf-s-bar-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.pf-s-bar{height:100%;border-radius:3px}
+.pf-s-detail{display:flex;justify-content:space-between;font-size:10px;color:var(--text3)}
+
+/* FLOW */
+.flow-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.125rem;margin-bottom:1rem}
+.flow-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:12px}
+.flow-row{display:flex;align-items:stretch;overflow-x:auto;padding-bottom:4px;gap:0}
+.flow-item{flex:1;min-width:95px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.875rem .75rem;text-align:center}
+.flow-arrow{display:flex;align-items:center;padding:0 5px;color:var(--text3);font-size:17px;flex-shrink:0;align-self:center}
+.flow-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:5px}
+.flow-val{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+.flow-pct{font-size:11px;font-weight:600}
+.flow-disc{background:rgba(155,108,245,.04);border-color:rgba(155,108,245,.2)}
+.flow-deduct{background:rgba(240,68,88,.04);border-color:rgba(240,68,88,.2)}
+.flow-result{background:rgba(15,184,106,.05);border-color:rgba(15,184,106,.25)}
+.flow-result .flow-val{color:var(--green)}
+
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:1rem}
+.chart-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.125rem}
+.chart-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:10px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chart-placeholder{display:flex;align-items:center;justify-content:center;height:180px;color:var(--text3);font-size:12px;flex-direction:column;gap:6px}
+
+/* SEC HEADER */
+.sec{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin:1.25rem 0 .75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+
+/* TABLE */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.tbl-scroll{overflow-x:auto}
+.exp-table{width:100%;border-collapse:collapse;min-width:680px}
+.exp-table th{text-align:right;padding:9px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap}
+.exp-table th:first-child,.exp-table th:nth-child(2){text-align:left}
+.exp-table td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:12.5px;text-align:right;color:var(--text);white-space:nowrap}
+.exp-table td:first-child{text-align:left;font-weight:600}
+.exp-table td:nth-child(2){text-align:left}
+.exp-table tr:last-child td{border-bottom:none}
+.exp-table tr:hover td{background:rgba(255,255,255,.02)}
+.total-row td{background:rgba(61,142,240,.05)!important;font-weight:700;border-top:1px solid var(--border2)!important}
+.pf-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.td-disc{color:var(--purple)}
+.td-fees{color:var(--amber)}
+.td-ads{color:var(--orange)}
+.td-net{color:var(--green);font-weight:700}
+.td-pct{color:var(--text3);font-size:11px}
+.td-fail{color:var(--red);font-weight:700}
+.td-pass{color:var(--green)}
+.td-pending{color:var(--amber);font-size:11px;font-weight:500}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.sd-pass{background:var(--green)}
+.sd-fail{background:var(--red)}
+
+.footer{text-align:center;font-size:11px;color:var(--text3);padding-top:1rem;border-top:1px solid var(--border);margin-top:.5rem}
+
+@media(max-width:640px){
+  .chart-grid{grid-template-columns:1fr}
+  .pf-summary-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <span class="nav-brand">MBT Report</span>
+  <span class="nav-badge">💰 ค่าใช้จ่าย</span>
+</nav>
+
+<!-- ────────────────────────────────────────── -->
+<!-- EXPENSE DASHBOARD                         -->
+<!-- ────────────────────────────────────────── -->
+<div class="container">
+
+  <div class="header">
+    <div>
+      <div class="brand">MICROBIOTEC THAILAND · TIKTOK SHOP</div>
+      <div class="h-title">💰 Financial Expense Dashboard</div>
+      <div class="h-sub">ยอดขาย · ค่าธรรมเนียม · ค่า Ads · เงินสุทธิ รายแพลตฟอร์ม</div>
+    </div>
+    <div class="h-right">
+      <div class="h-date">อัปเดต 9 ส.ค. 2569</div>
+      <div class="h-sub" style="color:var(--text3)">Shopee: ม.ค.–ก.ค. · Lazada: ม.ค.–ก.ค. (โอนรอทีม) · TikTok: ม.ค.–ก.ค.</div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <span class="filter-lbl">แพลตฟอร์ม</span>
+      <button class="fbtn active" id="pf-all"     onclick="setPlatform('all',this)">ทั้งหมด</button>
+      <button class="fbtn pf-shopee" id="pf-shopee" onclick="setPlatform('shopee',this)">🟠 Shopee</button>
+      <button class="fbtn pf-lazada" id="pf-lazada" onclick="setPlatform('lazada',this)">🔵 Lazada</button>
+      <button class="fbtn pf-tiktok" id="pf-tiktok" onclick="setPlatform('tiktok',this)">🎵 TikTok</button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">ไตรมาส</span>
+      <button class="fbtn qbtn" id="q-Q1" onclick="setQuarter('Q1',this)">Q1 <span class="q-sub">ม.ค.–มี.ค.</span></button>
+      <button class="fbtn qbtn" id="q-Q2" onclick="setQuarter('Q2',this)">Q2 <span class="q-sub">เม.ย.–มิ.ย.</span></button>
+      <button class="fbtn qbtn" id="q-Q3" onclick="setQuarter('Q3',this)">Q3 <span class="q-sub">ก.ค.–ก.ย.</span></button>
+      <button class="fbtn qbtn" id="q-Q4" onclick="setQuarter('Q4',this)">Q4 <span class="q-sub">ต.ค.–ธ.ค.</span></button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-lbl">เดือน</span>
+      <button class="fbtn active" id="m-all"   onclick="setMonth('all',this)">ทุกเดือน</button>
+      <button class="fbtn" id="m-ม.ค."  onclick="setMonth('ม.ค.',this)">ม.ค.</button>
+      <button class="fbtn" id="m-ก.พ."  onclick="setMonth('ก.พ.',this)">ก.พ.</button>
+      <button class="fbtn" id="m-มี.ค." onclick="setMonth('มี.ค.',this)">มี.ค.</button>
+      <button class="fbtn" id="m-เม.ย." onclick="setMonth('เม.ย.',this)">เม.ย.</button>
+      <button class="fbtn" id="m-พ.ค."  onclick="setMonth('พ.ค.',this)">พ.ค.</button>
+      <button class="fbtn" id="m-มิ.ย." onclick="setMonth('มิ.ย.',this)">มิ.ย.</button>
+      <button class="fbtn" id="m-ก.ค."  onclick="setMonth('ก.ค.',this)">ก.ค.</button>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <!-- 50% RULE -->
+  <div id="rule-banner"></div>
+
+  <!-- PLATFORM SUMMARY (all view) -->
+  <div id="pf-summary-section"></div>
+
+  <!-- MONEY FLOW -->
+  <div class="flow-section">
+    <div class="flow-title">🔄 Money Flow — เส้นทางเงิน</div>
+    <div class="flow-row" id="flow-row"></div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="chart-grid">
+    <div class="chart-box">
+      <div class="chart-title">📈 Revenue Breakdown รายเดือน</div>
+      <div id="bar-wrap"><canvas id="barChart" height="200"></canvas></div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#0fb86a"></div>เงินสุทธิ</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#f07340"></div>ค่า Ads</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#f5a623"></div>ค่าธรรมเนียม</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#9b6cf5"></div>ส่วนลด</div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">🍩 Expense Split</div>
+      <div id="donut-wrap" style="display:flex;justify-content:center"><canvas id="donutChart" style="max-height:190px"></canvas></div>
+      <div id="donut-legend" style="margin-top:12px;display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+
+  <!-- DETAIL TABLE -->
+  <div class="sec">📋 รายละเอียดรายเดือน</div>
+  <div class="tbl-wrap">
+    <div class="tbl-scroll">
+      <table class="exp-table">
+        <thead>
+          <tr>
+            <th>เดือน</th>
+            <th>แพลตฟอร์ม</th>
+            <th>ยอดขาย</th>
+            <th>ส่วนลด</th>
+            <th>ค่าธรรมเนียม</th>
+            <th>เงินโอนเข้าบช.</th>
+            <th>ค่า Ads</th>
+            <th>เงินสุทธิ</th>
+            <th>%คชจ</th>
+            <th>สถานะ</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    MBT Report · Financial Dashboard · ข้อมูลจากระบบ Shopee / Lazada / TikTok Shop<br>
+    <span style="color:var(--text3);font-size:10px;display:block;margin-top:3px">* คชจ = ค่าธรรมเนียม + ค่า Ads เท่านั้น (ส่วนลดทางการตลาดไม่นับ — บวกราคาไว้ก่อนออกโปรฯ แล้ว)</span>
+    <span style="color:var(--amber);font-size:10px;display:block;margin-top:2px">⏳ Lazada ก.ค.: ยอดโอนและเงินสุทธิรอข้อมูลจากทีม</span>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ── CHART.JS (loaded async — dashboard renders first) ── -->
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const RAW = {
+  shopee:[
+    {month:'ม.ค.',rev:5181175,disc:1358541,fees:828106, tf:2507635,ads:477024,net:2030611,ep:38.72},
+    {month:'ก.พ.',rev:4850282,disc:556868, fees:934361, tf:3346883,ads:512927,net:2833956,ep:38.61},
+    {month:'มี.ค.',rev:5217339,disc:538596, fees:1071139,tf:3647442,ads:542124,net:3105318,ep:39.12},
+    {month:'เม.ย.',rev:4844639,disc:679264, fees:998825, tf:2761469,ads:547330,net:2214139,ep:41.94},
+    {month:'พ.ค.',rev:5221229,disc:783637, fees:1124020,tf:2800887,ads:581468,net:2219419,ep:42.30},
+    {month:'มิ.ย.',rev:7035135,disc:1622740,fees:1490384,tf:4287896,ads:792639,net:3495257,ep:46.54},
+    {month:'ก.ค.',rev:7537024,disc:1420246,fees:1720993,tf:3724126,ads:826257,net:2897869,ep:46.52},
+  ],
+  lazada:[
+    {month:'ม.ค.',rev:564165, disc:40969, fees:125797,tf:323968, ads:105375,net:218593,ep:51},
+    {month:'ก.พ.',rev:666107, disc:33840, fees:142873,tf:452632, ads:155473,net:297159,ep:52},
+    {month:'มี.ค.',rev:961676, disc:57611, fees:216871,tf:411813, ads:229361,net:182452,ep:56},
+    {month:'เม.ย.',rev:678666, disc:44605, fees:143212,tf:569976, ads:199288,net:370688,ep:58},
+    {month:'พ.ค.',rev:732913, disc:41785, fees:184148,tf:436018, ads:179330,net:256688,ep:56},
+    {month:'มิ.ย.',rev:725249, disc:49247, fees:184626,tf:454645, ads:174566,net:280079,ep:57},
+    {month:'ก.ค.',rev:597139, disc:5508,  fees:165963,tf:null,   ads:119089,net:null,pending:true,ep:57},
+  ],
+  tiktok:[
+    {month:'ม.ค.',rev:1634920,disc:62542,  fees:360227,tf:1212151,ads:309984,net:902168},
+    {month:'ก.พ.',rev:1823093,disc:84188,  fees:443585,tf:1295320,ads:318195,net:977125},
+    {month:'มี.ค.',rev:1920618,disc:187257, fees:330972,tf:1402389,ads:320595,net:1081794},
+    {month:'เม.ย.',rev:1954628,disc:192296, fees:420926,tf:1341406,ads:389458,net:951948},
+    {month:'พ.ค.',rev:2719413,disc:450993, fees:604191,tf:1664229,ads:419641,net:1244588},
+    {month:'มิ.ย.',rev:3303117,disc:746373, fees:754767,tf:1801978,ads:539207,net:1262771},
+    {month:'ก.ค.',rev:4531386,disc:1300498,fees:934960, tf:2382260,ads:631645,net:1750615},
+  ],
+};
+const PF_CFG={
+  all:   {label:'ทั้งหมด',  dot:'#3d8ef0'},
+  shopee:{label:'Shopee',   dot:'#ff6b2b'},
+  lazada:{label:'Lazada',   dot:'#1a6fe8'},
+  tiktok:{label:'TikTok',  dot:'#69c9d0'},
+};
+const MONTH_ORDER=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.'];
+
+// ── STATE ──
+let curPf='all', curMon='all', curQ=null;
+let barInst=null, donutInst=null;
+let chartJsReady=false;
+
+const QUARTERS={
+  Q1:['ม.ค.','ก.พ.','มี.ค.'],
+  Q2:['เม.ย.','พ.ค.','มิ.ย.'],
+  Q3:['ก.ค.','ส.ค.','ก.ย.'],
+  Q4:['ต.ค.','พ.ย.','ธ.ค.'],
+};
+
+// ── HELPERS ──
+const fmt  = n=>Math.round(n).toLocaleString('th-TH');
+const fmtM = n=>{n=Math.round(n);if(Math.abs(n)>=1e6)return(n/1e6).toFixed(2)+'M';if(Math.abs(n)>=1e3)return(n/1e3).toFixed(0)+'K';return n.toLocaleString();};
+const pct  = (a,b)=>b>0?((a/b)*100).toFixed(1):'0.0';
+const PENDING_HTML='<span class="td-pending">⏳ รอข้อมูลจากทีม</span>';
+
+function getRows(){
+  const pfs=curPf==='all'?['shopee','lazada','tiktok']:[curPf];
+  const qMons=curQ?QUARTERS[curQ]:null;
+  return pfs.flatMap(pf=>RAW[pf].filter(d=>{
+    if(curMon!=='all') return d.month===curMon;
+    if(qMons) return qMons.includes(d.month);
+    return true;
+  }).map(d=>({...d,platform:pf})));
+}
+function sumRows(rows){
+  return rows.reduce((a,d)=>({
+    rev: a.rev+(d.rev||0),
+    disc:a.disc+(d.disc||0),
+    fees:a.fees+(d.fees||0),
+    tf:  a.tf+(d.tf||0),
+    ads: a.ads+(d.ads||0),
+    net: a.net+(d.net||0),
+  }),{rev:0,disc:0,fees:0,tf:0,ads:0,net:0});
+}
+function hasPending(rows){return rows.some(d=>d.pending);}
+function sumPf(pf,mon){return sumRows(RAW[pf].filter(d=>mon==='all'||d.month===mon).map(d=>({...d,platform:pf})));}
+
+// ── FILTERS ──
+function setPlatform(pf,btn){
+  curPf=pf;
+  document.querySelectorAll('.filter-row:first-child .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function setQuarter(q,btn){
+  // toggle: click same Q again → clear
+  if(curQ===q){curQ=null;btn.classList.remove('active');}
+  else{
+    curQ=q;curMon='all';
+    document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    // reset month row to "ทุกเดือน"
+    document.querySelectorAll('.filter-row:last-child .fbtn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('m-all').classList.add('active');
+  }
+  render();
+}
+function setMonth(m,btn){
+  curMon=m;curQ=null;
+  document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-row:last-child .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// ── TOAST ──
+let toastT;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ─────────────────────────────────────────────
+// EP HELPER — ใช้ d.ep เมื่อมี, คำนวณเมื่อไม่มี
+// ─────────────────────────────────────────────
+function calcEpFromRows(rows){
+  let num=0,den=0;
+  rows.forEach(d=>{
+    const ad=Math.max(0,d.rev-d.disc);
+    den+=ad;
+    if(d.ep!==undefined) num+=d.ep*ad/100;
+    else num+=(d.fees+d.ads);
+  });
+  return den>0?num/den*100:0;
+}
+function rowEp(d){
+  if(d.ep!==undefined) return d.ep;
+  const ad=d.rev-d.disc; return ad>0?(d.fees+d.ads)/ad*100:0;
+}
+
+// ─────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────
+function render(){
+  const rows=getRows();
+  const tot=sumRows(rows);
+  const pending=hasPending(rows);
+  renderKPI(tot,pending);
+  renderBanner(tot,rows);
+  renderPfSummary();
+  renderFlow(tot,pending);
+  renderTable(rows,tot);
+  renderCharts(rows,tot);
+}
+
+function renderKPI(tot,pending){
+  const afterDisc=tot.rev-tot.disc;
+  const rows=getRows();
+  const ep=calcEpFromRows(rows);
+  const np=afterDisc>0?tot.net/afterDisc*100:0;
+  const pendNote=pending?'<span style="color:var(--amber);font-size:9px"> *รอ Lazada</span>':'';
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi kpi-plain"><div class="kpi-lbl">ยอดขายรวม</div><div class="kpi-val">${fmtM(tot.rev)}</div><div class="kpi-sub">${fmt(tot.rev)} บาท</div></div>
+    <div class="kpi kpi-plain"><div class="kpi-lbl">ยอดขายหลังหักส่วนลด</div><div class="kpi-val">${fmtM(afterDisc)}</div><div class="kpi-sub">ส่วนลด ${pct(tot.disc,tot.rev)}% (${fmtM(tot.disc)})</div></div>
+    <div class="kpi kpi-amber"><div class="kpi-lbl">ค่าธรรมเนียม</div><div class="kpi-val">${fmtM(tot.fees)}</div><div class="kpi-sub">${pct(tot.fees,afterDisc)}% ของยอดหลังหักส่วนลด</div></div>
+    <div class="kpi kpi-plain"><div class="kpi-lbl">เงินเข้าบริษัท${pendNote}</div><div class="kpi-val">${fmtM(tot.tf)}</div><div class="kpi-sub">${pct(tot.tf,afterDisc)}% ของยอดหลังหักส่วนลด</div></div>
+    <div class="kpi kpi-red"><div class="kpi-lbl">ค่า Ads</div><div class="kpi-val">${fmtM(tot.ads)}</div><div class="kpi-sub">${pct(tot.ads,afterDisc)}% ของยอดหลังหักส่วนลด</div></div>
+    <div class="kpi kpi-green"><div class="kpi-lbl">เงินสุทธิ${pendNote}</div><div class="kpi-val">${fmtM(tot.net)}</div><div class="kpi-sub">${np.toFixed(1)}% ของยอดหลังหักส่วนลด</div></div>
+    <div class="kpi ${ep>50?'kpi-red':ep>45?'kpi-amber':'kpi-green'}"><div class="kpi-lbl">%คชจ / ยอดหลังหักส่วนลด</div><div class="kpi-val">${ep.toFixed(1)}%</div><div class="kpi-sub">เกณฑ์ ≤ 50%</div></div>
+  `;
+}
+
+function renderBanner(tot,rows){
+  const ep=calcEpFromRows(rows);
+  const fails=rows.filter(d=>rowEp(d)>50);
+  let cls,icon,title,sub,bc,bt;
+  if(ep>50){
+    cls='rb-fail';icon='🚨';bc='badge-fail';bt='เกินเกณฑ์';
+    title=`คชจ รวม ${ep.toFixed(1)}% — เกิน 50%`;
+    sub='ค่าธรรมเนียม + ค่า Ads รวมกันเกินเกณฑ์ที่ผบ. กำหนด';
+  } else if(fails.length){
+    cls='rb-warn';icon='⚠️';bc='badge-warn';bt='มีบางเดือนเกิน';
+    title=`ภาพรวม ${ep.toFixed(1)}% ✓ แต่มี ${fails.length} เดือนที่เกิน 50%`;
+    sub='เดือนที่เกิน: '+fails.map(d=>d.month+' ('+PF_CFG[d.platform].label+')').join(', ');
+  } else {
+    cls='rb-pass';icon='✅';bc='badge-pass';bt='ผ่านเกณฑ์';
+    title=`คชจ รวม ${ep.toFixed(1)}% — ผ่านเกณฑ์ 50%`;
+    sub='ค่าธรรมเนียม + ค่า Ads ไม่เกินเกณฑ์ผบ. ทุกเดือน';
+  }
+  document.getElementById('rule-banner').innerHTML=`
+    <div class="rule-banner ${cls}">
+      <div class="rb-left"><div class="rb-icon">${icon}</div>
+        <div><div class="rb-title">กฎ 50% ผบ. · ${title}</div><div class="rb-sub">${sub}</div></div>
+      </div>
+      <div class="rb-badge ${bc}">${bt}</div>
+    </div>`;
+}
+
+function renderPfSummary(){
+  if(curPf!=='all'){document.getElementById('pf-summary-section').innerHTML='';return;}
+  const html=['shopee','lazada','tiktok'].map(pf=>{
+    const s=sumPf(pf,curMon);
+    const cfg=PF_CFG[pf];
+    const pfRows=RAW[pf].filter(d=>curMon==='all'||d.month===curMon).map(d=>({...d,platform:pf}));
+    const ep=calcEpFromRows(pfRows);
+    const pass=ep<=50;
+    const bw=Math.min(100,ep/50*100);
+    const bc=ep>50?'var(--red)':ep>45?'var(--amber)':'var(--green)';
+    const pfPending=RAW[pf].some(d=>d.pending&&(curMon==='all'||d.month===curMon));
+    const netLabel=pfPending?'สุทธิ (บางส่วน)':'สุทธิ';
+    return `<div class="pf-summary">
+      <div class="pf-s-header"><div class="pf-s-name">${cfg.label}</div><div class="pf-s-badge sb-${pf}">${pf.charAt(0).toUpperCase()+pf.slice(1)}</div></div>
+      <div class="pf-s-rev">${fmtM(s.rev)} <span style="font-size:11px;color:var(--text3)">ยอดขาย</span></div>
+      <div class="pf-s-net">${netLabel} ${fmtM(s.net)}</div>
+      <div class="pf-s-bar-track"><div class="pf-s-bar" style="width:${bw}%;background:${bc}"></div></div>
+      <div class="pf-s-detail"><span>%คชจ: <strong style="color:${bc}">${ep.toFixed(1)}%</strong></span><span style="color:${pass?'var(--green)':'var(--red)'}">${pass?'✅ ผ่าน':'❌ เกิน'}</span></div>
+    </div>`;
+  }).join('');
+  document.getElementById('pf-summary-section').innerHTML=`<div class="pf-summary-grid">${html}</div>`;
+}
+
+function renderFlow(tot,pending){
+  const pendNote=pending?'<div style="font-size:9px;color:var(--amber);margin-top:2px">*รอ Lazada</div>':'';
+  document.getElementById('flow-row').innerHTML=`
+    <div class="flow-item"><div class="flow-lbl">ยอดขาย</div><div class="flow-val">${fmtM(tot.rev)}</div><div class="flow-pct" style="color:var(--text2)">100%</div></div>
+    <div class="flow-arrow">−</div>
+    <div class="flow-item flow-disc"><div class="flow-lbl">ส่วนลด</div><div class="flow-val" style="color:var(--purple)">${fmtM(tot.disc)}</div><div class="flow-pct" style="color:var(--purple)">${pct(tot.disc,tot.rev)}%</div></div>
+    <div class="flow-arrow">−</div>
+    <div class="flow-item flow-deduct"><div class="flow-lbl">ค่าธรรมเนียม</div><div class="flow-val" style="color:var(--amber)">${fmtM(tot.fees)}</div><div class="flow-pct" style="color:var(--amber)">${pct(tot.fees,tot.rev)}%</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item"><div class="flow-lbl">เงินโอนเข้าบช.</div><div class="flow-val">${fmtM(tot.tf)}</div><div class="flow-pct" style="color:var(--accent)">${pct(tot.tf,tot.rev)}%</div>${pendNote}</div>
+    <div class="flow-arrow">−</div>
+    <div class="flow-item flow-deduct"><div class="flow-lbl">ค่า Ads</div><div class="flow-val" style="color:var(--orange)">${fmtM(tot.ads)}</div><div class="flow-pct" style="color:var(--orange)">${pct(tot.ads,tot.rev)}%</div></div>
+    <div class="flow-arrow">=</div>
+    <div class="flow-item flow-result"><div class="flow-lbl">เงินสุทธิ</div><div class="flow-val">${fmtM(tot.net)}</div><div class="flow-pct" style="color:var(--green)">${pct(tot.net,tot.rev)}%</div>${pendNote}</div>
+  `;
+}
+
+function renderTable(rows,tot){
+  const sorted=[...rows].sort((a,b)=>{
+    const mi=MONTH_ORDER.indexOf(a.month)-MONTH_ORDER.indexOf(b.month);
+    if(mi!==0)return mi;
+    return ['shopee','lazada','tiktok'].indexOf(a.platform)-['shopee','lazada','tiktok'].indexOf(b.platform);
+  });
+  const pendingInView=hasPending(sorted);
+  let html=sorted.map(d=>{
+    const cfg=PF_CFG[d.platform];
+    const _ad=d.rev-d.disc; const ep=d.ep!==undefined?d.ep:(_ad>0?(d.fees+d.ads)/_ad*100:0);
+    const pass=ep<=50;
+    const tfCell=d.tf===null||d.tf===undefined ? PENDING_HTML : fmt(d.tf);
+    const netCell=d.net===null||d.net===undefined ? PENDING_HTML : `<span class="td-net">${fmt(d.net)}</span>`;
+    return `<tr>
+      <td>${d.month}</td>
+      <td><span class="pf-dot" style="background:${cfg.dot}"></span>${cfg.label}</td>
+      <td>${fmt(d.rev)}</td>
+      <td class="td-disc">${fmt(d.disc)}<br><span class="td-pct">${pct(d.disc,d.rev)}%</span></td>
+      <td class="td-fees">${fmt(d.fees)}<br><span class="td-pct">${pct(d.fees,_ad)}%</span></td>
+      <td>${tfCell}</td>
+      <td class="td-ads">${fmt(d.ads)}<br><span class="td-pct">${pct(d.ads,_ad)}%</span></td>
+      <td>${netCell}</td>
+      <td class="${pass?'td-pass':'td-fail'}">${ep.toFixed(1)}%</td>
+      <td><span class="status-dot ${pass?'sd-pass':'sd-fail'}"></span>${pass?'✅':'❌'}</td>
+    </tr>`;
+  }).join('');
+  const _totAD=tot.rev-tot.disc; const ep=_totAD>0?(tot.fees+tot.ads)/_totAD*100:0;
+  const pass=ep<=50;
+  const totTfNote=pendingInView?' <span style="font-size:10px;color:var(--amber)">*บางส่วน</span>':'';
+  html+=`<tr class="total-row">
+    <td>รวม</td><td style="color:var(--text2)">${curPf==='all'?'ทุกแพลตฟอร์ม':PF_CFG[curPf].label}</td>
+    <td>${fmt(tot.rev)}</td>
+    <td class="td-disc">${fmt(tot.disc)}<br><span class="td-pct">${pct(tot.disc,tot.rev)}%</span></td>
+    <td class="td-fees">${fmt(tot.fees)}<br><span class="td-pct">${pct(tot.fees,_totAD)}%</span></td>
+    <td>${fmt(tot.tf)}${totTfNote}</td>
+    <td class="td-ads">${fmt(tot.ads)}<br><span class="td-pct">${pct(tot.ads,_totAD)}%</span></td>
+    <td class="td-net">${fmt(tot.net)}${totTfNote}</td>
+    <td class="${pass?'td-pass':'td-fail'}">${ep.toFixed(1)}%</td>
+    <td><span class="status-dot ${pass?'sd-pass':'sd-fail'}"></span>${pass?'✅':'❌'}</td>
+  </tr>`;
+  document.getElementById('table-body').innerHTML=html;
+}
+
+function renderCharts(rows,tot){
+  if(!chartJsReady){return;}
+  try{ renderBar(rows); }catch(e){}
+  try{ renderDonut(tot); }catch(e){}
+}
+
+function renderBar(rows){
+  const byM={};
+  rows.forEach(d=>{
+    if(!byM[d.month])byM[d.month]={disc:0,fees:0,ads:0,net:0};
+    byM[d.month].disc+=d.disc||0;byM[d.month].fees+=d.fees||0;
+    byM[d.month].ads+=d.ads||0;byM[d.month].net+=d.net||0;
+  });
+  const labels=MONTH_ORDER.filter(m=>byM[m]);
+  const mk=k=>labels.map(m=>Math.round(byM[m][k]));
+  const ctx=document.getElementById('barChart').getContext('2d');
+  if(barInst)barInst.destroy();
+  barInst=new Chart(ctx,{type:'bar',data:{labels,datasets:[
+    {label:'ส่วนลด',data:mk('disc'),backgroundColor:'rgba(155,108,245,.65)',stack:'s'},
+    {label:'ค่าธรรมเนียม',data:mk('fees'),backgroundColor:'rgba(245,166,35,.75)',stack:'s'},
+    {label:'ค่า Ads',data:mk('ads'),backgroundColor:'rgba(240,115,64,.85)',stack:'s'},
+    {label:'เงินสุทธิ',data:mk('net'),backgroundColor:'rgba(15,184,106,.8)',stack:'s'},
+  ]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ฿${c.parsed.y.toLocaleString('th-TH')}`}}},scales:{x:{grid:{color:'rgba(30,45,69,.6)'},ticks:{color:'#7a8fad',font:{size:11}}},y:{grid:{color:'rgba(30,45,69,.6)'},ticks:{color:'#7a8fad',font:{size:11},callback:v=>fmtM(v)},stacked:true}}}});
+}
+
+function renderDonut(tot){
+  const ctx=document.getElementById('donutChart').getContext('2d');
+  if(donutInst)donutInst.destroy();
+  const vals=[Math.round(tot.disc),Math.round(tot.fees),Math.round(tot.ads),Math.round(tot.net)];
+  const clrs=['rgba(155,108,245,.8)','rgba(245,166,35,.85)','rgba(240,115,64,.9)','rgba(15,184,106,.85)'];
+  const lbls=['ส่วนลด','ค่าธรรมเนียม','ค่า Ads','เงินสุทธิ'];
+  donutInst=new Chart(ctx,{type:'doughnut',data:{labels:lbls,datasets:[{data:vals,backgroundColor:clrs,borderWidth:1,borderColor:'#0d1117'}]},options:{responsive:true,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${pct(c.parsed,tot.rev)}%`}}}}});
+  document.getElementById('donut-legend').innerHTML=lbls.map((l,i)=>`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)"><div style="width:8px;height:8px;border-radius:50%;background:${clrs[i]}"></div>${l}</div>
+      <span style="font-size:11px;font-weight:600;color:${['var(--purple)','var(--amber)','var(--orange)','var(--green)'][i]}">${pct(vals[i],tot.rev)}%</span>
+    </div>`).join('');
+}
+
+// ── INIT: Render table/KPI immediately, load Chart.js async ──
+render();
+
+const chartScript=document.createElement('script');
+chartScript.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+chartScript.onload=()=>{
+  chartJsReady=true;
+  const rows=getRows();
+  const tot=sumRows(rows);
+  try{renderBar(rows);}catch(e){}
+  try{renderDonut(tot);}catch(e){}
+};
+chartScript.onerror=()=>{
+  document.getElementById('bar-wrap').innerHTML='<div class="chart-placeholder">📈<span>กราฟไม่สามารถโหลดได้<br><span style="font-size:10px">ต้องการการเชื่อมต่ออินเทอร์เน็ต</span></span></div>';
+  document.getElementById('donut-wrap').innerHTML='<div class="chart-placeholder">🍩<span>กราฟไม่สามารถโหลดได้</span></div>';
+};
+document.head.appendChild(chartScript);
+</script>
+</body>
+</html>
